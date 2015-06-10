@@ -1,0 +1,30 @@
+McKenzie
+Confident internet user. Does not know netball.
+Home: Yes Expected. Arrow is not clear. Podium is who won most.
+Team: Would expect. Columns differentiate between countries.
+Specific team: Overall/per season might show statistics (can only see the overall currently)
+Stats: Doesn't understand bars, need labels. Understands purpose of graph. Per season changing means to choose a specific season rather than switching between per season and overall.
+Rivalries: Would expect. And clicking on bars would show information of teams
+Courts: Would expect to see this. Pie graph could be teams or it could be cross section of stadium.
+========================================================================================================
+Jamie
+Daily internet user - confident internet user. Played it a few times and knows the rules.
+Home: Yes expected, maybe a different font though. Arrows see 4th/5th place etc.
+Team: Would be cool to have a visual of the team like seeing who is on each time. If clicked on would expect pictures of the team and about the team. Split into columns by ranks or rivals.
+Specific team overall: Would expect this with pictures of the team too. Clicking dropdown box would show different years.
+Specific team per season: Expects each bar to be win vs loss. Clicking arrows would change season.
+Stats: Not what was expected. Needs labels. Magic is coming first. Would expect more teams. Hovering over New Zealand would give overview of NZ netball. Clicking per season leads to more seasons. Arrows lead to different graphs like goals shot.
+Rivalries: If she knew what rivalries were in this context. If clicking on a bar it shows stats about that rivalries.
+Courts: Would expect this for courts if she wanted to see home advantage. Doesn't know what courts could mean. Pie graph slices are teams. Shows wins and losses at home court. Doesn't know what 6 and 2 means. Stats panel is cool. Clicking on arrows leads to images of courts? If help dialog box appeared on arrows would expect earlier or later years.
+Likes being able to click/lots of interaction with clicking.
+========================================================================================================
+Allan
+Knows netball and follows ANZ championship. Very comfortable with the internet. Medium-good at using internet.
+Home: Would expect this. Telling him who is currently first or predictions for first second and third. Nothing there for fixtures. Doesn't see the point of the arrows.
+Team: Would expect this. Would expect the teams option on the side to be a dropdown box. Clicking on a banner would show a list of players.
+Specific team overall: Would not expect to see this. Would expect to see this in statistics. Clicking on Overall dropdown box doesn't know what happens.
+Specific team per season: Would be expecting to see specific dates. Arrows mean go back and forward in page history.
+Stats: Would not expect this. Would expect to see a table with fixtures, points for and against, etc. Clicking in New zealand would show new zealand teams. Clicking on per season would show the same graph for previous seasons. Pressing left arrow would take back to home page and right have no idea.
+Rivalries: Would not expect. Would expect something more tabular. If clicking on a banner would expect statistics for that matchup.
+Courts: Would expect stat panel would only pop up if clicked on graph. Doesn't know what arrows do. Drop down box shows previous years for clicking the per season dropdown.
+Home is good. Versus is not good. Teams is good. Teams to him means who is in the team however. Would call it results. When told what the arrows meant thought it was not very obvious. Suggests arrows go down the bottom next to season banner.
