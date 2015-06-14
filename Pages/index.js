@@ -29,11 +29,12 @@ function doPage (year) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
 		var svg = getNewSVG(svgWidth, svgHeight);
-		clearSVG(svg);
+		clearSVG();
 		
 		drawPodium(svg);
 		var topThree = getPlacings(data);
 		drawImages(svg, topThree);
+		drawBanner(svg);
 		
 		if(year===2013){
 			drawLeftTri(svg, year);
@@ -53,7 +54,7 @@ function getNewSVG (w, h) {
 	return svg;
 }
 
-function clearSVG(svg){
+function clearSVG () {
 	d3.selectAll("svg > *").remove();
 }
 
@@ -91,6 +92,12 @@ function drawRightTri (svg, year)  {
 		});
 }
 
+// drawn second after images so only needs to append the svg
+function drawBanner (svg) {
+	//svg.append("svg:image")
+	
+}
+
 function drawImages (svg, topThree) {
 	var imgs = svg.selectAll("image")
 		.data(topThree)
@@ -109,7 +116,7 @@ function drawImages (svg, topThree) {
 		.attr("height",(svgWidth-padding*2)/6);
 }
 
-function drawPodium(svg){
+function drawPodium (svg) {
 	svg.selectAll("rect") // podiums
 		.data(rectHeights)
 		.enter()
@@ -163,7 +170,7 @@ function ordered (topThree) {
 }
 
 // Removes the spaces from the first and last position of strings (if they exist)
-function doTrim(str){
+function doTrim (str) {
 	var fin;
 	if(str.charAt(0)==" "){
 		var finPos = str.length-1;

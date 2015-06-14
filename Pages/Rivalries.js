@@ -27,7 +27,7 @@ function doPage (year) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
 		var svg = getNewSVG(svgWidth, svgHeight);
-		clearSVG(svg);
+		clearSVG();
 	}
 );
 
@@ -39,7 +39,7 @@ function getNewSVG (w, h) {
 	return svg;
 }
 
-function clearSVG(svg){
+function clearSVG () {
 	d3.selectAll("svg > *").remove();
 }
 
@@ -78,7 +78,7 @@ function drawRightTri (svg, year)  {
 }
 
 // Removes the spaces from the first and last position of strings (if they exist)
-function doTrim(str){
+function doTrim (str) {
 	var fin;
 	if(str.charAt(0)==" "){
 		var finPos = str.length-1;
