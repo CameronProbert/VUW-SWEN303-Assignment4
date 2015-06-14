@@ -45,11 +45,34 @@ div.navigation {
 	font-weight:bold;
 	color:white;
 	line-height:50px;
-	background-color:#009DDD;
 	height:50px;
 	width:105%;
 	float:right;
 	padding:5px; 
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	-ms-transition: all 0.3s;
+	-o-transition: all 0.3s;
+	transition: all 0.3s;
+}
+div.navigation.selected {
+	background-color:#ed008c;
+}
+div.navigation.unselected {
+	background-color:#009DDD;
+}
+div.navigation:hover {
+	background-color:#C00071;
+}
+div.inner {
+	text-align:center;
+	font-weight:bold;
+	color:white;
+	line-height:50px;
+	height:50px;
+	width:100%;
+	float:right;
+	padding:0px; 
 }
 div.logo {
 	margin-top: 15px;
@@ -60,11 +83,12 @@ div.logo {
 	float:right; 
 }
 a{
-	color:white
+	color:white;
+	padding:0px;
 }
 a.nav{
 	text-decoration: none;
-	color:white
+	color:white;
 }
 svg.centered {
 	position: absolute;
