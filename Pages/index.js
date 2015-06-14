@@ -17,62 +17,32 @@ var barPadding = 5;
 var bottomPadding = 75;
 
 
-var year = 2008;
+var rectHeights = [100, 200, 150];
+
+var year = 2013;
 doPage(year);
 
 
 
 
 function doPage (year) {
-d3.csv('data/'+year+'-Table1.csv', function (error, data){
-	if(error){return;}
-	clearSVG(svg);
-	for(var i=0; i<data.length; i++){
-		//console.log(data[i]);
-	}
-	var rectHeights = [100, 200, 150];
-	var svg = getNewSVG(svgWidth, svgHeight);
-	svg.selectAll("rect") // podiums
-        .data(rectHeights)
-        .enter()
-        .append("rect")
-        .attr("x", function(d, i){
-			return i * ( svgWidth - padding * 2 ) / 3 + padding;
-		})
-        .attr("y", function(d){
-			return svgHeight - d - bottomPadding;
-		})
-        .attr("width",(svgWidth-padding*2)/3-barPadding)
-        .attr("height", function(d){
-			return d;
-		})
-        .attr("fill", colorPink);
+	d3.csv('data/'+year+'-Table1.csv', function (error, data){
+		if(error){return;}
+		var svg = getNewSVG(svgWidth, svgHeight);
+		clearSVG(svg);
 		
-	var topThree = getPlacings(data);
-	var imgs = svg.selectAll("image")
-		.data(topThree)
-        .enter()
-        .append("svg:image")
-		.attr("xlink:href", function(d){
-			return "../Resources/logo_" + d + ".png";
-		})
-        .attr("x", function(d, i){
-			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*barPadding;
-		})
-        .attr("y", function(d, i){
-			return svgHeight-rectHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
-		})
-        .attr("width",(svgWidth-padding*2)/6)
-        .attr("height",(svgWidth-padding*2)/6);
-	if(year===2013){
-		drawLeftTri(svg, year);
-	}else if(year===2008){
-		drawRightTri(svg, year);
-	}else{
-		drawLeftTri(svg, year);
-		drawRightTri(svg, year);
-	}
-	
+		drawPodium(svg);
+		var topThree = getPlacings(data);
+		drawImages(svg, topThree);
+		
+		if(year===2013){
+			drawLeftTri(svg, year);
+		}else if(year===2008){
+			drawRightTri(svg, year);
+		}else{
+			drawLeftTri(svg, year);
+			drawRightTri(svg, year);
+		}
 });
 
 function getNewSVG (w, h) {
@@ -85,7 +55,6 @@ function getNewSVG (w, h) {
 
 function clearSVG(svg){
 	d3.selectAll("svg > *").remove();
-	//console.log("tried to clear the svg");
 }
 
 function drawLeftTri (svg, year)  {
@@ -98,10 +67,7 @@ function drawLeftTri (svg, year)  {
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
-		//.append("svg:title")
-		//.text(tip)
 		.on('click', function(){
-			//console.log("I was clicked");
 			d3.event.stopPropagation();
 			year = year - 1;
 			doPage(year);
@@ -118,14 +84,47 @@ function drawRightTri (svg, year)  {
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
-		//.append("svg:title")
-		//.text(tip)
 		.on('click', function(){
-			//console.log("I was clicked");
 			d3.event.stopPropagation();
 			year = year + 1;
 			doPage(year);
 		});
+}
+
+function drawImages (svg, topThree) {
+	var imgs = svg.selectAll("image")
+		.data(topThree)
+		.enter()
+		.append("svg:image")
+		.attr("xlink:href", function(d){
+			return "../Resources/logo_" + d + ".png";
+		})
+		.attr("x", function(d, i){
+			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*barPadding;
+		})
+		.attr("y", function(d, i){
+			return svgHeight-rectHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
+		})
+		.attr("width",(svgWidth-padding*2)/6)
+		.attr("height",(svgWidth-padding*2)/6);
+}
+
+function drawPodium(svg){
+	svg.selectAll("rect") // podiums
+		.data(rectHeights)
+		.enter()
+		.append("rect")
+		.attr("x", function(d, i){
+			return i * ( svgWidth - padding * 2 ) / 3 + padding;
+		})
+		.attr("y", function(d){
+			return svgHeight - d - bottomPadding;
+		})
+		.attr("width",(svgWidth-padding*2)/3-barPadding)
+		.attr("height", function(d){
+			return d;
+		})
+		.attr("fill", colorPink);
 }
 
 function getPlacings (data) {
@@ -163,6 +162,7 @@ function ordered (topThree) {
 	return placings;
 }
 
+// Removes the spaces from the first and last position of strings (if they exist)
 function doTrim(str){
 	var fin;
 	if(str.charAt(0)==" "){
