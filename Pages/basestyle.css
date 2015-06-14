@@ -1,8 +1,8 @@
  header {
 		background-color:#007ab6;
 		color:white;
-		text-align:center;
-		padding:5px; 
+		text-align:left;
+		padding:10px; 
 		}
 		nav {
 		line-height:30px;
@@ -54,3 +54,9 @@
 		a.nav{
 		
 		}
+		svg.centered {
+                position: absolute;
+                left: 45%;
+                top: 5%;
+                margin-left: -500px;
+        }
