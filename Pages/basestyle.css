@@ -30,7 +30,7 @@
 		font-family:Verdana, Helvetica, sans-serif;
 		}
 		div.navigation + div.navigation {
-		margin-bottom:20px;
+		margin-top:10px;
 		}
 		div.navigation {
 		text-align:center;
@@ -52,11 +52,15 @@
 		padding:5px;
 		}
 		a.nav{
-		
+		text-decoration: none;
+		color:white
+		}
+		a.logo{
+		margin-top:20px;
 		}
 		svg.centered {
                 position: absolute;
                 left: 45%;
-                top: 5%;
+                top: 15%;
                 margin-left: -500px;
         }
