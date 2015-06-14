@@ -26,7 +26,6 @@ doPage(year);
 function doPage (year) {
 d3.csv('data/'+year+'-Table1.csv', function (error, data){
 	if(error){return;}
-	// TODO neeeeeeeeeed to clear the SVG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	clearSVG(svg);
 	for(var i=0; i<data.length; i++){
 		//console.log(data[i]);
