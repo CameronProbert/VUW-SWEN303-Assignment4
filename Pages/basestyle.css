@@ -7,6 +7,7 @@ header {
 	color:white;
 	text-align:left;
 	padding:10px; 
+	z-index:999;
 }
 nav {
 	position:fixed;
