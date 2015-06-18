@@ -10,26 +10,67 @@ var svgWidth = 1000;
 var svgHeight = 550;
 var barWidth = 100;
 var arrowSize = 50;
+var teamBannerWidth = 100;
+var teamBannerHeight = 50;
+var logoWidth = 50;
 
 // GLOBAL PADDINGS
 var padding = 100;
 var barPadding = 5;
 var bottomPadding = 75;
 
-
+var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "New South Wales Swifts", "Queensland Firebirds", "West Coast Fever"];
+var NZTeams = ["Waikato Bay of Plenty Magic", "Central Pulse", "Northern Mystics", "Southern Steel", "Canterbury Tactix"];
 var year = 2013;
-doPage(year);
+doPage();
 
+function doPage () {
+	var svg = getNewSVG(svgWidth, svgHeight);
+	drawASTeams (svg);
+	drawNZTeams (svg);
+}
 
+function drawASTeams (svg) {
+	svg.selectAll("image")
+		.data(AUTeams)
+		.enter()
+		.append("svg:image")
+		.attr("xlink:href", function(d){
+			return "../Resources/logos/logo_" + d + ".png";
+		})
+		.attr("x", svgWidth/2)
+		.attr("y", function(d, i){
+			return i*(teamBannerHeight+barPadding);
+		})
+		.attr("width", logoWidth)
+		.attr("height", teamBannerHeight);
 
+}
+
+function drawNZTeams (svg) {
+	svg.selectAll("image")
+		.data(NZTeams)
+		.enter()
+		.append("svg:image")
+		.attr("xlink:href", function(d){
+			return "../Resources/logos/logo_" + d + ".png";
+		})
+		.attr("x", barPadding)
+		.attr("y", function(d, i){
+			return i*(teamBannerHeight+padding);
+		})
+		.attr("width", logoWidth)
+		.attr("height", teamBannerHeight);
+}
 
 function perSeason (year) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
-		if(error){return;}
-		var svg = getNewSVG(svgWidth, svgHeight);
-		clearSVG();
-	}
-);
+			if(error){return;}
+			var svg = getNewSVG(svgWidth, svgHeight);
+			clearSVG();
+		}
+	);
+}
 
 function getNewSVG (w, h) {
     var svg = d3.select("#mainsvg")
@@ -105,4 +146,3 @@ function doTrim (str) {
 	return fin;
 }
 
-}
