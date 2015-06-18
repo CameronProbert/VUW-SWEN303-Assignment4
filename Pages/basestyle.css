@@ -11,7 +11,7 @@ header {
 }
 nav {
 	position:fixed;
-	top:100;
+	top:100px;
 	right:0;
 	line-height:30px;
 	background-color:#007ab6;
@@ -22,18 +22,10 @@ nav {
 	padding:5px; 
 }
 section {
-	margin-top:100px;
 	width:350px;
 	float:middle;
 	padding:10px; 
 	text-align:left;
-}
-footer {
-	background-color:#007ab6;
-	color:white;
-	clear:both;
-	text-align:center;
-	padding:5px; 
 }
 body {
 	font-family:Verdana, Helvetica, sans-serif;
@@ -94,6 +86,5 @@ a.nav{
 svg.centered {
 	position: absolute;
 	left: 45%;
-	top: 15%;
 	margin-left: -500px;
 }
