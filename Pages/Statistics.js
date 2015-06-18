@@ -23,7 +23,7 @@ doPage(year);
 
 
 
-function doPage (year) {
+function perSeason (year) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
 		var svg = getNewSVG(svgWidth, svgHeight);
@@ -47,7 +47,7 @@ function drawLeftTri (svg, year)  {
 	var tip = "Previous Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
-			return "../Resources/LeftArrow.png";
+			return "../Resources/arrows/LeftArrow.png";
 		})
 		.attr("x", 0)
         .attr("y", svgHeight - arrowSize)
@@ -56,7 +56,7 @@ function drawLeftTri (svg, year)  {
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
-			doPage(year);
+			perSeason(year);
 		});
 }
 
@@ -64,7 +64,7 @@ function drawRightTri (svg, year)  {
 	var tip = "Next Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
-			return "../Resources/RightArrow.png";
+			return "../Resources/arrows/RightArrow.png";
 		})
 		.attr("x", svgWidth - arrowSize )
         .attr("y", svgHeight - arrowSize)
@@ -73,8 +73,20 @@ function drawRightTri (svg, year)  {
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;
-			doPage(year);
+			perSeason(year);
 		});
+}
+
+// drawn second after images so only needs to append the svg
+function drawBanner (svg, year) {
+	svg.append("svg:image")
+		.attr("xlink:href", function(d){
+			return "../Resources/banners/banner_"+year+".png";
+		})
+		.attr("x", arrowSize)
+        .attr("y", svgHeight - arrowSize)
+        .attr("width", svgWidth-2*arrowSize)
+        .attr("height", arrowSize)
 }
 
 // Removes the spaces from the first and last position of strings (if they exist)

@@ -5,6 +5,10 @@ var colorWhite = "rgb(255, 255, 255)";
 var colorPink = "rgb(237, 0, 140)";
 var colorBlack = "rgb(0, 0, 0)";
 
+var colorGold = "rgb(204, 153, 0)";
+var colorBronze = "rgb(139, 85, 49)";
+var colorSilver = "rgb(205, 206, 208)";
+
 // GLOBAL SIZES
 var svgWidth = 1000;
 var svgHeight = 550;
@@ -34,7 +38,7 @@ function doPage (year) {
 		drawPodium(svg);
 		var topThree = getPlacings(data);
 		drawImages(svg, topThree);
-		drawBanner(svg);
+		drawBanner(svg, year);
 		
 		if(year===2013){
 			drawLeftTri(svg, year);
@@ -62,7 +66,7 @@ function drawLeftTri (svg, year)  {
 	var tip = "Previous Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
-			return "../Resources/LeftArrow.png";
+			return "../Resources/arrows/LeftArrow.png";
 		})
 		.attr("x", 0)
         .attr("y", svgHeight - arrowSize)
@@ -79,7 +83,7 @@ function drawRightTri (svg, year)  {
 	var tip = "Next Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
-			return "../Resources/RightArrow.png";
+			return "../Resources/arrows/RightArrow.png";
 		})
 		.attr("x", svgWidth - arrowSize )
         .attr("y", svgHeight - arrowSize)
@@ -93,9 +97,15 @@ function drawRightTri (svg, year)  {
 }
 
 // drawn second after images so only needs to append the svg
-function drawBanner (svg) {
-	//svg.append("svg:image")
-	
+function drawBanner (svg, year) {
+	svg.append("svg:image")
+		.attr("xlink:href", function(d){
+			return "../Resources/banners/banner_"+year+".png";
+		})
+		.attr("x", arrowSize)
+        .attr("y", svgHeight - arrowSize)
+        .attr("width", svgWidth-2*arrowSize)
+        .attr("height", arrowSize)
 }
 
 function drawImages (svg, topThree) {
@@ -104,7 +114,7 @@ function drawImages (svg, topThree) {
 		.enter()
 		.append("svg:image")
 		.attr("xlink:href", function(d){
-			return "../Resources/logo_" + d + ".png";
+			return "../Resources/logos/logo_" + d + ".png";
 		})
 		.attr("x", function(d, i){
 			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*barPadding;
@@ -131,7 +141,11 @@ function drawPodium (svg) {
 		.attr("height", function(d){
 			return d;
 		})
-		.attr("fill", colorPink);
+		.attr("fill", function(d, i){
+			if(i===0) return colorBronze;
+			if(i===1) return colorGold;
+			return colorSilver;
+		});
 }
 
 function getPlacings (data) {
