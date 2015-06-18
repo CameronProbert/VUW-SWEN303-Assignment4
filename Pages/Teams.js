@@ -10,9 +10,9 @@ var svgWidth = 1000;
 var svgHeight = 550;
 var barWidth = 100;
 var arrowSize = 50;
-var teamBannerWidth = 100;
-var teamBannerHeight = 50;
-var logoWidth = 50;
+var teamBannerWidth = 200;
+var teamBannerHeight = 100;
+var logoWidth = 100;
 
 // GLOBAL PADDINGS
 var padding = 100;
@@ -27,7 +27,42 @@ doPage();
 function doPage () {
 	var svg = getNewSVG(svgWidth, svgHeight);
 	drawASTeams (svg);
+	//drawASBanners (svg);
 	drawNZTeams (svg);
+	//drawNZBanners (svg);
+}
+
+function overall(team, svg){
+	d3.csv('data/2008-Table1.csv', function (e1, data2008){
+		if(e1){return;}
+		d3.csv('data/2009-Table1.csv', function (e2, data2009){
+			if(e2){return;}
+			d3.csv('data/2010-Table1.csv', function (e3, data2010){
+				if(e3){return;}
+				d3.csv('data/2011-Table1.csv', function (e4, data2011){
+					if(e4){return;}
+					d3.csv('data/2012-Table1.csv', function (e5, data2012){
+						if(e5){return;}
+						d3.csv('data/2013-Table1.csv', function (e6, data2013){
+							if(e6){return;}
+							var years = [data2008, data2009, data2010, data2011, data2012, data2013];
+							clearSVG();
+							printStats(years, svg, team);
+							drawGraph(years, svg, team);		
+						});	
+					});
+				});
+			});	
+		});
+	});
+}
+
+function printStats (years, svg, team) {
+
+}
+
+function drawGraph (years, svg, team) {
+
 }
 
 function drawASTeams (svg) {
@@ -43,24 +78,56 @@ function drawASTeams (svg) {
 			return i*(teamBannerHeight+barPadding);
 		})
 		.attr("width", logoWidth)
-		.attr("height", teamBannerHeight);
+		.attr("height", teamBannerHeight)
+		.on('click', function(d){
+			d3.event.stopPropagation();
+			overall(d, svg);
+		});
+}
 
+function drawASBanners (svg) {
+	for(var i=0; i<ASTeams.length; i++){
+		svg.append("svg:image")
+		.attr("xlink:href", "../Resources/banners/banner_" + ASTeams[i] + ".png")
+		.attr("x", barPadding+logoWidth+svgWidth/2)
+		.attr("y", i*(teamBannerHeight+barPadding))
+		.attr("width", teamBannerWidth)
+		.attr("height", teamBannerHeight)
+		.on('click', function(){
+			d3.event.stopPropagation();
+			overall(ASTeams[i], svg);
+		});
+	}
 }
 
 function drawNZTeams (svg) {
-	svg.selectAll("image")
-		.data(NZTeams)
-		.enter()
-		.append("svg:image")
-		.attr("xlink:href", function(d){
-			return "../Resources/logos/logo_" + d + ".png";
-		})
+	for(var i=0; i<NZTeams.length; i++){
+		svg.append("svg:image")
+		.attr("xlink:href", "../Resources/logos/logo_" + NZTeams[i] + ".png")
 		.attr("x", barPadding)
-		.attr("y", function(d, i){
-			return i*(teamBannerHeight+padding);
-		})
+		.attr("y", i*(teamBannerHeight+barPadding))
 		.attr("width", logoWidth)
-		.attr("height", teamBannerHeight);
+		.attr("height", teamBannerHeight)
+		.on('click', function(){
+			d3.event.stopPropagation();
+			overall(NZTeams[i], svg);
+		});
+	}
+}
+
+function drawNZBanners (svg) {
+	for(var i=0; i<NZTeams.length; i++){
+		svg.append("svg:image")
+		.attr("xlink:href", "../Resources/banners/banner_" + NZTeams[i] + ".png")
+		.attr("x", barPadding+logoWidth)
+		.attr("y", i*(teamBannerHeight+barPadding))
+		.attr("width", teamBannerWidth)
+		.attr("height", teamBannerHeight)
+		.on('click', function(d){
+			d3.event.stopPropagation();
+			overall(NZTeams[i], svg);
+		});
+	}
 }
 
 function perSeason (year) {

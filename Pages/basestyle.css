@@ -85,6 +85,7 @@ a.nav{
 }
 svg.centered {
 	position: absolute;
+	top: 130px;
 	left: 45%;
 	margin-left: -500px;
 }
