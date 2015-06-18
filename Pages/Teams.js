@@ -47,8 +47,7 @@ function overall(team, svg){
 							if(e6){return;}
 							var years = [data2008, data2009, data2010, data2011, data2012, data2013];
 							clearSVG();
-							printStats(years, svg, team);
-							drawGraph(years, svg, team);		
+							printStats(years, svg, team);	
 						});	
 					});
 				});
@@ -58,10 +57,70 @@ function overall(team, svg){
 }
 
 function printStats (years, svg, team) {
-
+	console.log(team);
+	var rounds = initRounds();
+	var bestRank = 99;
+	var numGames = 0;
+	var wonGames = 0;
+	for(var i=0; i<years.length; i++){ // for each year
+		for(var j=0; j<years[i].length; j++){ // for each game
+			var match = years[i][j];
+			var r = match.Round;
+			if(gameConcerningThisTeam(match, team)){
+				rounds[r].totalGames ++;
+				numGames++;
+				//console.log("year : " + i + " game : " + j);
+				var win = winOrLoss(match, team);
+				if(win){
+					wonGames++;
+					rounds[r].wins ++;
+				}
+			}
+		}
+	}
+	var percentage = wonGames/numGames*100;
+	for(var i=0; i<rounds.length; i++){
+		//console.log("wins : "+rounds[i].wins);
+		//console.log("total games : "+rounds[i].totalGames);
+	}
+	console.log('wins = ' + wonGames);
+	console.log('total = ' + numGames);
+	drawGraph (rounds, percentage, svg);
+	
 }
 
-function drawGraph (years, svg, team) {
+function initRounds () {
+	var rounds = [];
+	for(var i=0; i<18; i++){ // total of 17 rounds, will count from 1
+		rounds[i] = {
+			wins : 0,
+			totalGames : 0			
+		}
+	}
+	return rounds;
+}
+
+function gameConcerningThisTeam (game, team) {
+	if(game['Home Team']===team || game['Away Team']===team){ 
+		//console.log("found a match");
+		return true;
+	}
+	return false;
+}
+
+function winOrLoss (game, team) {
+	var resH = game['Home Score']; // home score
+	var resA = game['Away Score']; // away score
+	if(resH>resA && game['Home Team'] === team){
+		return true; // home team won and team was the home team
+	}
+	if (resH<resA && game['Away Team'] === team){
+		return true;
+	}
+	return false;
+}
+
+function drawGraph (rounds, winRate, svg) {
 
 }
 
@@ -102,6 +161,7 @@ function drawASBanners (svg) {
 
 function drawNZTeams (svg) {
 	for(var i=0; i<NZTeams.length; i++){
+	var team = NZTeams[i];
 		svg.append("svg:image")
 		.attr("xlink:href", "../Resources/logos/logo_" + NZTeams[i] + ".png")
 		.attr("x", barPadding)
@@ -110,7 +170,7 @@ function drawNZTeams (svg) {
 		.attr("height", teamBannerHeight)
 		.on('click', function(){
 			d3.event.stopPropagation();
-			overall(NZTeams[i], svg);
+			overall(team, svg);
 		});
 	}
 }
@@ -197,19 +257,4 @@ function drawBanner (svg, year) {
         .attr("height", arrowSize)
 }
 
-// Removes the spaces from the first and last position of strings (if they exist)
-function doTrim (str) {
-	var fin;
-	if(str.charAt(0)==" "){
-		var finPos = str.length-1;
-		fin = str.substring(1, finPos);
-	}else{
-		fin = str;
-	}
-	var finPos = fin.length-1;
-	if(fin.charAt(finPos)==" "){
-		fin = fin.substring(0, finPos-1);
-	}
-	return fin;
-}
 

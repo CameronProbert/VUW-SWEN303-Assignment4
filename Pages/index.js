@@ -48,7 +48,7 @@ function doPage (year) {
 			drawLeftTri(svg, year);
 			drawRightTri(svg, year);
 		}
-});
+});}
 
 function getNewSVG (w, h) {
     var svg = d3.select("#mainsvg")
@@ -152,22 +152,19 @@ function getPlacings (data) {
 	var topThree = [];
 	var lastGame = data[data.length-1];
 	var penUltGame = data[data.length-2];
-	var score = lastGame.Score;
-	var res = score.split("-");
-	res[0] = doTrim(res[0]);
-	res[1] = doTrim(res[1]);
-	if(res[0]>res[1]){
+	var resH = lastGame['Home Score'];
+	var resA = lastGame['Away Score'];
+	if(resH>resA){
 		topThree[0] = lastGame['Home Team'];
 		topThree[1] = lastGame['Away Team'];
 	}else{
 		topThree[1] = lastGame['Home Team'];
 		topThree[0] = lastGame['Away Team'];
 	}
-	score = penUltGame.Score;
-	var res = score.split("-");
-	res[0] = doTrim(res[0]);
-	res[1] = doTrim(res[1]);
-	if(res[0]>res[1]){
+	
+	resH = penUltGame['Home Score'];
+	resA = penUltGame['Away Score'];
+	if(resH>resA){
 		topThree[2] = penUltGame['Away Team'];
 	}else{
 		topThree[2] = penUltGame['Home Team'];
@@ -183,20 +180,3 @@ function ordered (topThree) {
 	return placings;
 }
 
-// Removes the spaces from the first and last position of strings (if they exist)
-function doTrim (str) {
-	var fin;
-	if(str.charAt(0)==" "){
-		var finPos = str.length-1;
-		fin = str.substring(1, finPos);
-	}else{
-		fin = str;
-	}
-	var finPos = fin.length-1;
-	if(fin.charAt(finPos)==" "){
-		fin = fin.substring(0, finPos-1);
-	}
-	return fin;
-}
-
-}
