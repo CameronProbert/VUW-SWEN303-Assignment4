@@ -7,17 +7,18 @@ var colorBlack = "rgb(0, 0, 0)";
 
 // GLOBAL SIZES
 var svgWidth = 1000;
-var svgHeight = 550;
+var svgHeight = 1000;
 var barWidth = 100;
 var arrowSize = 50;
-var teamBannerWidth = 200;
+var teamBannerWidth = 350;
 var teamBannerHeight = 100;
 var logoWidth = 100;
 
 // GLOBAL PADDINGS
 var padding = 100;
-var barPadding = 5;
+var barPadding = 20;
 var bottomPadding = 75;
+var topPadding = 50;
 
 var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "New South Wales Swifts", "Queensland Firebirds", "West Coast Fever"];
 var NZTeams = ["Waikato Bay of Plenty Magic", "Central Pulse", "Northern Mystics", "Southern Steel", "Canterbury Tactix"];
@@ -27,9 +28,9 @@ doPage();
 function doPage () {
 	var svg = getNewSVG(svgWidth, svgHeight);
 	drawASTeams (svg);
-	//drawASBanners (svg);
+	drawASBanners (svg);
 	drawNZTeams (svg);
-	//drawNZBanners (svg);
+	drawNZBanners (svg);
 }
 
 function overall(team, svg){
@@ -45,7 +46,7 @@ function overall(team, svg){
 						if(e5){return;}
 						d3.csv('data/2013-Table1.csv', function (e6, data2013){
 							if(e6){return;}
-							var years = [data2008, data2009, data2010, data2011, data2012, data2013];
+							var years = [data2008, data2009, data2010, data2011, data2012, data2013]; 
 							clearSVG();
 							printStats(years, svg, team);	
 						});	
@@ -57,7 +58,8 @@ function overall(team, svg){
 }
 
 function printStats (years, svg, team) {
-	console.log(team);
+
+	//console.log(team);
 	var rounds = initRounds();
 	var bestRank = 99;
 	var numGames = 0;
@@ -69,23 +71,17 @@ function printStats (years, svg, team) {
 			if(gameConcerningThisTeam(match, team)){
 				rounds[r].totalGames ++;
 				numGames++;
-				//console.log("year : " + i + " game : " + j);
+				
 				var win = winOrLoss(match, team);
-				if(win){
-					wonGames++;
-					rounds[r].wins ++;
-				}
+				wonGames += win;
+				rounds[r].wins += win;
 			}
 		}
 	}
 	var percentage = wonGames/numGames*100;
-	for(var i=0; i<rounds.length; i++){
-		//console.log("wins : "+rounds[i].wins);
-		//console.log("total games : "+rounds[i].totalGames);
-	}
 	console.log('wins = ' + wonGames);
 	console.log('total = ' + numGames);
-	drawGraph (rounds, percentage, svg);
+	drawGraph (rounds, wonGames, percentage, team, svg);
 	
 }
 
@@ -112,16 +108,103 @@ function winOrLoss (game, team) {
 	var resH = game['Home Score']; // home score
 	var resA = game['Away Score']; // away score
 	if(resH>resA && game['Home Team'] === team){
-		return true; // home team won and team was the home team
+		return 1; // home team won and team was the home team
 	}
 	if (resH<resA && game['Away Team'] === team){
-		return true;
+		return 1;
 	}
-	return false;
+	return 0;
 }
 
-function drawGraph (rounds, winRate, svg) {
+function drawGraph (rounds, wonGames, winRate, team, svg) {
+	// Team Name
+	svg.selectAll("text") 
+        .data([0])
+        .enter()
+        .append("text")
+        .text(team)
+        .attr("x", 0) 
+        .attr("y", topPadding)
+        .attr("font-family", "Verdana")
+        .attr("font-size", "60px")
+        .attr("fill", colorBlack)
+        .attr("text-anchor", "left");
 
+	// Logo
+	svg.append("svg:image")
+		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
+		.attr("x", 0)
+		.attr("y", topPadding+padding)
+		.attr("width", logoWidth)
+		.attr("height", teamBannerHeight)
+	// Banner
+	svg.append("svg:image")
+		.attr("xlink:href", "../Resources/banners/banner_" + team + ".png")
+		.attr("x", logoWidth)
+		.attr("y", topPadding+padding)
+		.attr("width", teamBannerWidth)
+		.attr("height", teamBannerHeight)
+	// Text
+	winRate = Number(winRate).toFixed(2);
+	drawText(svg, "Number of games won : "+wonGames, logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight/2-15, 30);
+	drawText(svg, "Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight-15, 30);
+	//Border
+	
+	var room = topPadding+padding+barPadding+teamBannerHeight;
+	var heightMax = svgHeight-(topPadding+padding+teamBannerHeight+barPadding*2);
+	svg.selectAll("rect") 
+		.data([0])
+        .enter()
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", room)
+        .attr("width", svgWidth)
+        .attr("height", heightMax)
+		.attr("fill", colorWhite)
+		.attr("stroke-width", 3)
+        .attr("stroke", colorBlack);
+	// Graph
+	var lowestWR = getLowestandHighestWR(rounds)[0];
+	var highestWR = getLowestandHighestWR(rounds)[1]
+	var scale = d3.scale.linear()
+		.domain([lowestWR, highestWR])
+		.range([0, heightMax]);
+	for(var i=0; i<rounds.length; i++){
+		var 
+		svg.append("rect")
+			.attr("x", .....)
+			.attr("y", room + scale(value))
+			.attr("width", svgWidth)
+			.attr("height", )
+			.attr("fill", colorWhite)
+			.attr("stroke-width", 3)
+			.attr("stroke", colorBlack);
+	
+	}
+	
+}
+
+function drawText (svg, text, x, y, size){
+	svg.append("text")
+        .text(text)
+        .attr("x", x) 
+        .attr("y", y)
+        .attr("font-family", "Verdana")
+        .attr("font-size", size+"px")
+        .attr("fill", colorBlack)
+        .attr("text-anchor", "left");
+}
+
+function getLowestandHighestWR(rounds){
+	var hAndL = [];
+	hAndL[0] = 9999999;
+	hAndL[1] = 0;
+	for(var i=0; i<rounds.length; i++){
+		var wR = rounds[i].wins/rounds[i].totalGames;
+		if(wR>hAndL){hAndL[1]=wR;}
+		else if(wR,hAndL[0]=wR;}		
+	}
+	return hAndL;
 }
 
 function drawASTeams (svg) {
@@ -145,25 +228,33 @@ function drawASTeams (svg) {
 }
 
 function drawASBanners (svg) {
-	for(var i=0; i<ASTeams.length; i++){
-		svg.append("svg:image")
-		.attr("xlink:href", "../Resources/banners/banner_" + ASTeams[i] + ".png")
-		.attr("x", barPadding+logoWidth+svgWidth/2)
+	for(var i=0; i<AUTeams.length; i++){
+		drawTeamBanner(AUTeams[i], svg, i, barPadding+logoWidth+svgWidth/2);
+	}
+}
+
+function drawTeamBanner (team, svg, i, x) {	
+	svg.append("svg:image")
+		.attr("xlink:href", "../Resources/banners/banner_" + team + ".png")
+		.attr("x", x)
 		.attr("y", i*(teamBannerHeight+barPadding))
 		.attr("width", teamBannerWidth)
 		.attr("height", teamBannerHeight)
 		.on('click', function(){
 			d3.event.stopPropagation();
-			overall(ASTeams[i], svg);
+			overall(team, svg);
 		});
-	}
 }
 
 function drawNZTeams (svg) {
 	for(var i=0; i<NZTeams.length; i++){
-	var team = NZTeams[i];
-		svg.append("svg:image")
-		.attr("xlink:href", "../Resources/logos/logo_" + NZTeams[i] + ".png")
+		drawlogo (NZTeams[i], svg, i);
+	}
+}
+
+function drawlogo (team, svg, i) {
+	svg.append("svg:image")
+		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
 		.attr("x", barPadding)
 		.attr("y", i*(teamBannerHeight+barPadding))
 		.attr("width", logoWidth)
@@ -172,21 +263,11 @@ function drawNZTeams (svg) {
 			d3.event.stopPropagation();
 			overall(team, svg);
 		});
-	}
 }
 
 function drawNZBanners (svg) {
 	for(var i=0; i<NZTeams.length; i++){
-		svg.append("svg:image")
-		.attr("xlink:href", "../Resources/banners/banner_" + NZTeams[i] + ".png")
-		.attr("x", barPadding+logoWidth)
-		.attr("y", i*(teamBannerHeight+barPadding))
-		.attr("width", teamBannerWidth)
-		.attr("height", teamBannerHeight)
-		.on('click', function(d){
-			d3.event.stopPropagation();
-			overall(NZTeams[i], svg);
-		});
+		drawTeamBanner (NZTeams[i], svg, i, barPadding+logoWidth );
 	}
 }
 
@@ -248,9 +329,7 @@ function drawRightTri (svg, year)  {
 // drawn second after images so only needs to append the svg
 function drawBanner (svg, year) {
 	svg.append("svg:image")
-		.attr("xlink:href", function(d){
-			return "../Resources/banners/banner_"+year+".png";
-		})
+		.attr("xlink:href", "../Resources/banners/banner_"+year+".png")
 		.attr("x", arrowSize)
         .attr("y", svgHeight - arrowSize)
         .attr("width", svgWidth-2*arrowSize)
