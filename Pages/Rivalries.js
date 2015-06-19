@@ -20,7 +20,7 @@ var bottomPadding = 75;
 
 var RIVALRIES_TO_SHOW = 6;
 
-var selectedRivalry = 0;//RIVALRIES_TO_SHOW+1;
+var selectedRivalry = RIVALRIES_TO_SHOW+1;
 
 doPage();
 
