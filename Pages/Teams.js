@@ -19,6 +19,7 @@ var padding = 100;
 var barPadding = 20;
 var bottomPadding = 75;
 var topPadding = 50;
+var graphPadding = 50;
 
 var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "New South Wales Swifts", "Queensland Firebirds", "West Coast Fever"];
 var NZTeams = ["Waikato Bay of Plenty Magic", "Central Pulse", "Northern Mystics", "Southern Steel", "Canterbury Tactix"];
@@ -118,17 +119,7 @@ function winOrLoss (game, team) {
 
 function drawGraph (rounds, wonGames, winRate, team, svg) {
 	// Team Name
-	svg.selectAll("text") 
-        .data([0])
-        .enter()
-        .append("text")
-        .text(team)
-        .attr("x", 0) 
-        .attr("y", topPadding)
-        .attr("font-family", "Verdana")
-        .attr("font-size", "60px")
-        .attr("fill", colorBlack)
-        .attr("text-anchor", "left");
+	drawText(svg, team, 0, topPadding, 60, "left");
 
 	// Logo
 	svg.append("svg:image")
@@ -146,16 +137,13 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 		.attr("height", teamBannerHeight)
 	// Text
 	winRate = Number(winRate).toFixed(2);
-	drawText(svg, "Number of games won : "+wonGames, logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight/2-15, 30);
-	drawText(svg, "Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight-15, 30);
+	drawText(svg, "Number of games won : "+wonGames, logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight/2-15, 30, "left");
+	drawText(svg, "Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight-15, 30, "left");
 	//Border
 	
 	var heightMin = topPadding+padding*2+barPadding+teamBannerHeight;
 	var heightMax = svgHeight-(barPadding*2);
-	svg.selectAll("rect") 
-		.data([0])
-        .enter()
-        .append("rect")
+	svg.append("rect")
         .attr("x", 0)
         .attr("y", heightMin)
         .attr("width", svgWidth)
@@ -169,14 +157,13 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 	// average win rate bar
 	heightMax = heightMax - 50;
 	winRate = winRate/100; // convert back to decimal from %
-	var graphPadding = 50;
 	var scale = d3.scale.linear()
 		.domain([lowestWR, highestWR])
 		.range([0, heightMax-heightMin-graphPadding*2]);
 		
 	drawLine( (heightMax-graphPadding-scale(winRate)), svg);
 	drawLine(heightMax-graphPadding, svg);
-	for(var i=0; i<rounds.length; i++){
+	for(var i=1; i<rounds.length; i++){
 		var wR;
 		if(rounds[i].totalGames!==0){
 			wR = rounds[i].wins/rounds[i].totalGames;
@@ -185,6 +172,9 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 		}
 		drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax);
 	}
+	
+	drawRounds (rounds, svg, heightMax);
+	drawText (svg, "Rounds", svgWidth/2, heightMax+barPadding, 40,"center");
 	
 }
 
@@ -206,14 +196,14 @@ function drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax
 		.range([0, heightMax-heightMin-graphPadding*2]);
 
 	svg.append("rect")
-		.attr("x", i*(svgWidth-4*barPadding)/17+barPadding)
+		.attr("x", (i-1)*(svgWidth-4*barPadding)/16+barPadding)
 		.attr("y", function(){
 			if(wR===0){
 				return heightMax-graphPadding-noBar;
 			}
 			return heightMax-graphPadding-scale(wR);
 		})
-		.attr("width", (svgWidth-4*barPadding)/17-barPadding)
+		.attr("width", (svgWidth-4*barPadding)/16-barPadding)
 		.attr("height", function(){
 			if(wR===0){
 				return noBar;
@@ -232,7 +222,7 @@ function drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax
 	
 }
 
-function drawText (svg, text, x, y, size){
+function drawText (svg, text, x, y, size, allign){
 	svg.append("text")
         .text(text)
         .attr("x", x) 
@@ -240,7 +230,13 @@ function drawText (svg, text, x, y, size){
         .attr("font-family", "Verdana")
         .attr("font-size", size+"px")
         .attr("fill", colorBlack)
-        .attr("text-anchor", "left");
+        .attr("text-anchor", allign);
+}
+
+function drawRounds (rounds, svg, heightMax){
+	for(var i=1; i<rounds.length; i++){
+		drawText(svg, i, (i-1)*(svgWidth-4*barPadding)/16+barPadding+10, heightMax-barPadding, 20);
+	}
 }
 
 function getLowestandHighestWR(rounds){
