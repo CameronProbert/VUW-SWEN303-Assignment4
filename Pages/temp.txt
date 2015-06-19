@@ -150,8 +150,8 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 	drawText(svg, "Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight-15, 30);
 	//Border
 	
-	var heightMin = topPadding+padding*2+barPadding+teamBannerHeight;
-	var heightMax = svgHeight-(barPadding*2);
+	var heightMin = topPadding+padding+barPadding+teamBannerHeight;
+	var heightMax = svgHeight-(topPadding+padding+teamBannerHeight+barPadding*2);
 	svg.selectAll("rect") 
 		.data([0])
         .enter()
@@ -159,23 +159,28 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
         .attr("x", 0)
         .attr("y", heightMin)
         .attr("width", svgWidth)
-        .attr("height", heightMax-heightMin)
+        .attr("height", heightMax)
 		.attr("fill", colorWhite)
 		.attr("stroke-width", 3)
         .attr("stroke", colorBlack);
 	// Graph
 	var lowestWR = getLowestandHighestWR(rounds)[0];
 	var highestWR = getLowestandHighestWR(rounds)[1];
+	console.log("highest WR : "+highestWR+" lowest WR : "+lowestWR);
 	// average win rate bar
-	heightMax = heightMax - 50;
-	winRate = winRate/100; // convert back to decimal from %
-	var graphPadding = 50;
 	var scale = d3.scale.linear()
-		.domain([lowestWR, highestWR])
-		.range([0, heightMax-heightMin-graphPadding*2]);
-		
-	drawLine( (heightMax-graphPadding-scale(winRate)), svg);
-	drawLine(heightMax-graphPadding, svg);
+		.domain([highestWR, lowestWR])
+		.range([0, heightMax-heightMin-2*50]);
+	winRate = winRate/100; // convert back to decimal from %
+	svg.append("line")
+		.attr("x1", 0)
+		.attr("y1", heightMin+scale(winRate))
+		.attr("x2", svgWidth)
+		.attr("y2", heightMin+scale(winRate))
+		.attr("stroke", colorBlack)
+		.attr("stroke-width", 3);
+	
+	
 	for(var i=0; i<rounds.length; i++){
 		var wR;
 		if(rounds[i].totalGames!==0){
@@ -183,42 +188,43 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 		}else{
 			wR=0;
 		}
-		drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax);
+		//console.log("wR : "+wR);
+		drawBar (i, wR, winRate, scale(winRate), lowestWR, highestWR, svg, heightMin, heightMax);
 	}
 	
 }
 
-function drawLine (y, svg) {
-	svg.append("line")
-		.attr("x1", barPadding)
-		.attr("y1", y)
-		.attr("x2", svgWidth-barPadding)
-		.attr("y2", y)
-		.attr("stroke", colorBlack)
-		.attr("stroke-width", 3);
-}
-
-function drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax ) {
-	var noBar = 5;
+function drawBar (i, wR, winRate, scaledWinRate, lowestWR, highestWR, svg, heightMin, heightMax ) {
 	var graphPadding = 50;
-	var scale = d3.scale.linear()
-		.domain([lowestWR, highestWR])
-		.range([0, heightMax-heightMin-graphPadding*2]);
+	var scaleAbove = d3.scale.linear()
+		.domain([winRate, highestWR])
+		.range([0, scaledWinRate]);
+		
+	var scaleBelow = d3.scale.linear()
+		.domain([winRate, lowestWR])
+		.range([0, heightMax-scaledWinRate/2-heightMin]);
+	//console.log("hMin : "+heightMin+" hMax : " +heightMax);
+	console.log("scaled win rate : " +scaledWinRate);
+	//console.log("from : "+(heightMin+scaledWinRate+graphPadding));
+	//console.log("to : "+(heightMax-graphPadding));
 
 	svg.append("rect")
-		.attr("x", i*(svgWidth-4*barPadding)/17+barPadding)
+		.attr("x", i*(svgWidth-2*barPadding)/17)
 		.attr("y", function(){
-			if(wR===0){
-				return heightMax-graphPadding-noBar;
+			if(wR>=winRate){
+				return heightMin +graphPadding + scaledWinRate-(scaleAbove(wR));
+			}else{
+				return heightMin + scaledWinRate;
 			}
-			return heightMax-graphPadding-scale(wR);
 		})
-		.attr("width", (svgWidth-4*barPadding)/17-barPadding)
+		.attr("width", (svgWidth-2*barPadding)/17-barPadding)
 		.attr("height", function(){
-			if(wR===0){
-				return noBar;
+			if(wR>=winRate){
+				return (scaleAbove(wR)-graphPadding); // above win rate
+			}else{
+				console.log("below win rates "+wR+" scaled they are " + scaleBelow(wR));
+				return (scaleBelow(wR)+graphPadding); // below win rate
 			}
-			return scale(wR);
 		})
 		.attr("fill", function(){
 			if(wR>=winRate){
@@ -229,7 +235,6 @@ function drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax
 		})
 		.attr("stroke-width", 3)
 		.attr("stroke", colorBlack);
-	
 }
 
 function drawText (svg, text, x, y, size){
