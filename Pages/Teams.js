@@ -7,7 +7,7 @@ var colorBlack = "rgb(0, 0, 0)";
 
 // GLOBAL SIZES
 var svgWidth = 1000;
-var svgHeight = 1000;
+var svgHeight = 600;
 var barWidth = 100;
 var arrowSize = 50;
 var teamBannerWidth = 350;
@@ -20,6 +20,8 @@ var barPadding = 20;
 var bottomPadding = 75;
 var topPadding = 50;
 var graphPadding = 50;
+var noBar = 5;
+var lilBar = 15;
 
 var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "New South Wales Swifts", "Queensland Firebirds", "West Coast Fever"];
 var NZTeams = ["Waikato Bay of Plenty Magic", "Central Pulse", "Northern Mystics", "Southern Steel", "Canterbury Tactix"];
@@ -27,7 +29,9 @@ var year = 2013;
 doPage();
 
 function doPage () {
+	svgHeight = 600;
 	var svg = getNewSVG(svgWidth, svgHeight);
+	clearSVG();
 	drawASTeams (svg);
 	drawASBanners (svg);
 	drawNZTeams (svg);
@@ -49,6 +53,10 @@ function overall(team, svg){
 							if(e6){return;}
 							var years = [data2008, data2009, data2010, data2011, data2012, data2013]; 
 							clearSVG();
+							svgHeight = 1100;
+							svg.attr("height", svgHeight);
+							drawBackButton (svg);
+							svgHeight = 1000;
 							printStats(years, svg, team);	
 						});	
 					});
@@ -59,7 +67,6 @@ function overall(team, svg){
 }
 
 function printStats (years, svg, team) {
-
 	//console.log(team);
 	var rounds = initRounds();
 	var bestRank = 99;
@@ -80,8 +87,6 @@ function printStats (years, svg, team) {
 		}
 	}
 	var percentage = wonGames/numGames*100;
-	console.log('wins = ' + wonGames);
-	console.log('total = ' + numGames);
 	drawGraph (rounds, wonGames, percentage, team, svg);
 	
 }
@@ -119,43 +124,27 @@ function winOrLoss (game, team) {
 
 function drawGraph (rounds, wonGames, winRate, team, svg) {
 	// Team Name
-	drawText(svg, team, 0, topPadding, 60, "left");
-
+	var textSize = 60;
+	if(team === "Waikato Bay of Plenty Magic"){textSize=50;}
+	drawText(svg, team, 0, topPadding+barPadding, textSize, "left");
 	// Logo
-	svg.append("svg:image")
-		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
-		.attr("x", 0)
-		.attr("y", topPadding+padding)
-		.attr("width", logoWidth)
-		.attr("height", teamBannerHeight)
+	drawAnImage(svg, 0, topPadding+padding, logoWidth, teamBannerHeight, "../Resources/logos/logo_" + team + ".png");
 	// Banner
-	svg.append("svg:image")
-		.attr("xlink:href", "../Resources/banners/banner_" + team + ".png")
-		.attr("x", logoWidth)
-		.attr("y", topPadding+padding)
-		.attr("width", teamBannerWidth)
-		.attr("height", teamBannerHeight)
+	drawAnImage(svg, logoWidth, topPadding+padding, teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + team + ".png");
 	// Text
 	winRate = Number(winRate).toFixed(2);
 	drawText(svg, "Number of games won : "+wonGames, logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight/2-15, 30, "left");
 	drawText(svg, "Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight-15, 30, "left");
-	//Border
 	
+	//Border
 	var heightMin = topPadding+padding*2+barPadding+teamBannerHeight;
 	var heightMax = svgHeight-(barPadding*2);
-	svg.append("rect")
-        .attr("x", 0)
-        .attr("y", heightMin)
-        .attr("width", svgWidth)
-        .attr("height", heightMax-heightMin)
-		.attr("fill", colorWhite)
-		.attr("stroke-width", 3)
-        .attr("stroke", colorBlack);
+	drawABar (svg, 0, heightMin, svgWidth, heightMax-heightMin, colorWhite);
 	// Graph
 	var lowestWR = getLowestandHighestWR(rounds)[0];
 	var highestWR = getLowestandHighestWR(rounds)[1];
 	// average win rate bar
-	heightMax = heightMax - 50;
+	heightMax = heightMax - graphPadding;
 	winRate = winRate/100; // convert back to decimal from %
 	var scale = d3.scale.linear()
 		.domain([lowestWR, highestWR])
@@ -173,8 +162,33 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 		drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax);
 	}
 	
+	// round numbers
 	drawRounds (rounds, svg, heightMax);
-	drawText (svg, "Rounds", svgWidth/2, heightMax+barPadding, 40,"center");
+	drawText (svg, "Rounds", svgWidth/2, heightMax+graphPadding/2, 40,"middle");
+	
+	// graph title
+	drawABar (svg, 0, heightMin-graphPadding-barPadding*2, svgWidth, graphPadding+barPadding*2, colorWhite);
+	drawText (svg, "Average Win Rate Per Round", svgWidth/2, heightMin-graphPadding+barPadding, 40,"middle");
+	
+	// keys
+		//pink
+	drawABar (svg, barPadding, heightMin+barPadding/2, lilBar, lilBar, colorPink);
+	drawText (svg, "Win rates above average", barPadding + lilBar*2, heightMin+barPadding+4, 20, "left" );
+		//blue
+	drawABar (svg, svgWidth/2, heightMin+barPadding/2, lilBar, lilBar, colorLightBlue);
+	drawText (svg, "Win rates below average", svgWidth/2 + lilBar*2, heightMin+barPadding+4, 20, "left" );
+	
+}
+
+function drawABar (svg, x, y, width, height, color) {
+	svg.append("rect")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height)
+		.attr("fill", color)
+		.attr("stroke-width", 3)
+		.attr("stroke", colorBlack);
 	
 }
 
@@ -189,36 +203,25 @@ function drawLine (y, svg) {
 }
 
 function drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax ) {
-	var noBar = 5;
 	var graphPadding = 50;
 	var scale = d3.scale.linear()
 		.domain([lowestWR, highestWR])
 		.range([0, heightMax-heightMin-graphPadding*2]);
-
-	svg.append("rect")
-		.attr("x", (i-1)*(svgWidth-4*barPadding)/16+barPadding)
-		.attr("y", function(){
-			if(wR===0){
-				return heightMax-graphPadding-noBar;
-			}
-			return heightMax-graphPadding-scale(wR);
-		})
-		.attr("width", (svgWidth-4*barPadding)/16-barPadding)
-		.attr("height", function(){
-			if(wR===0){
-				return noBar;
-			}
-			return scale(wR);
-		})
-		.attr("fill", function(){
-			if(wR>=winRate){
-				return colorPink;
-			}else{
-				return colorLightBlue;
-			}
-		})
-		.attr("stroke-width", 3)
-		.attr("stroke", colorBlack);
+	var x = (i-1)*(svgWidth-4*barPadding)/16+barPadding;
+	var y;
+	if(wR===0){
+		y = heightMax-graphPadding-noBar;
+	}else{ y = heightMax-graphPadding-scale(wR);}
+	var width = (svgWidth-4*barPadding)/16-barPadding;
+	var height;
+	if(wR===0){
+		height = noBar;
+	}else{ height = scale(wR);}
+	var color;
+	if(wR>=winRate){
+		color = colorPink;
+	}else{ color = colorLightBlue;}
+	drawABar (svg, x, y, width, height, color);
 	
 }
 
@@ -377,12 +380,32 @@ function drawRightTri (svg, year)  {
 
 // drawn second after images so only needs to append the svg
 function drawBanner (svg, year) {
-	svg.append("svg:image")
-		.attr("xlink:href", "../Resources/banners/banner_"+year+".png")
-		.attr("x", arrowSize)
-        .attr("y", svgHeight - arrowSize)
-        .attr("width", svgWidth-2*arrowSize)
-        .attr("height", arrowSize)
+	drawAnImage(svg, arrowSize, svgHeight - arrowSize, svgWidth-2*arrowSize, arrowSize, "../Resources/banners/banner_"+year+".png" );
 }
 
+function drawAnImage (svg, x, y, width, height, name){ // no on click function tho
+	svg.append("svg:image")
+		.attr("xlink:href", name)
+		.attr("x", x)
+        .attr("y", y)
+        .attr("width", width)
+        .attr("height", height);
+}
+
+
+function drawBackButton (svg) {
+	var y = 1050;
+	var width = 75;
+	drawText (svg, "Go back to main teams page", svgWidth/2, y-40, 20, "middle");
+	svg.append("svg:image")
+		.attr("xlink:href", "../Resources/arrows/BackArrow.png")
+		.attr("x", svgWidth/2-width/2)
+        .attr("y", y-20)
+        .attr("width", width)
+        .attr("height", width)
+		.on('click', function(){
+			d3.event.stopPropagation();
+			doPage();
+		});
+}
 
