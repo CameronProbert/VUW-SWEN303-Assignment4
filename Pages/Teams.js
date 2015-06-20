@@ -23,8 +23,8 @@ var graphPadding = 50;
 var noBar = 5;
 var lilBar = 15;
 
-var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "New South Wales Swifts", "Queensland Firebirds", "West Coast Fever"];
-var NZTeams = ["Waikato Bay of Plenty Magic", "Central Pulse", "Northern Mystics", "Southern Steel", "Canterbury Tactix"];
+var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "Queensland Firebirds", "New South Wales Swifts", "West Coast Fever"];
+var NZTeams = ["Waikato Bay of Plenty Magic", "Northern Mystics", "Southern Steel", "Central Pulse", "Canterbury Tactix"];
 var year = 2013;
 doPage();
 
