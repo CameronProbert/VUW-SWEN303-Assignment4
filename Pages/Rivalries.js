@@ -119,7 +119,7 @@ function doPage () {
 								topRivalries[topRivalries.length] = rivalries[i];
 							}
 							
-							drawRivalries(svg, topRivalries, selectedRivalry);
+							drawRivalries(svg, topRivalries, selectedRivalry, allData);
 							
 						});
 					});
@@ -129,14 +129,14 @@ function doPage () {
 	});
 }
 
-function drawRivalries(svg, rivalries, selectedRivalry){
+function drawRivalries(svg, rivalries, selectedRivalry, allData){
 
 	// Loop through all the rivalries
 	for (var count = 0; count < RIVALRIES_TO_SHOW && count < rivalries.length; count++){
 	
 		// If this is the selected rivalry
 		if (count === selectedRivalry){
-			drawSelectedRivalry(count, svg, rivalries);
+			drawSelectedRivalry(count, svg, rivalries, allData);
 		}
 		// If this is not the selected rivalry
 		else {
@@ -146,16 +146,16 @@ function drawRivalries(svg, rivalries, selectedRivalry){
 }
 
 // Draws the selected rivalry
-function drawSelectedRivalry(count, svg, rivalries){
+function drawSelectedRivalry(count, svg, rivalries, allData){
 
 	// Text area variables
 	var centreX = 500;
 	var centreY = count*(iconSize+rivalryPadding)+iconSize/2+150;
 	var infoWidth = 560;
 	var infoHeight = 300;
-	var textSize = 30;
+	var textSize = 20;
 	var textPaddingSide = 5;
-	var textPaddingBetween = 40;
+	var textPaddingBetween = 60;
 	var textTop = centreY-70;
 	var barWidth = 400;
 	
@@ -165,12 +165,14 @@ function drawSelectedRivalry(count, svg, rivalries){
 		.attr("y", centreY-infoHeight/2)
 		.attr("fill", colourGrey)
 		.attr("stroke", colourBlack)
-		.attr("stroke-width", 3)
+		.attr("stroke-width", 1)
 		.attr("width", infoWidth)
 		.attr("height", infoHeight);
 		
 	// Put info in box
 	var col = 0;
+	
+	// Games won descriptions
 	svg.append("text")
 		.text("Games Won")
 		.attr("x", centreX-infoWidth/2+textPaddingSide)
@@ -187,40 +189,42 @@ function drawSelectedRivalry(count, svg, rivalries){
 		.attr("font-size", textSize)
 		.attr("text-anchor", "end");
 		
+	// Games won values
 	svg.append("text")
 		.text(function(){
 			return rivalries[count].won;
 		})
-		.attr("x", centreX-infoWidth/2+textPaddingSide)
+		.attr("x", centreX-textPaddingSide*2)
 		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
 		.attr("font-family", "Verdana")
 		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
+		.attr("text-anchor", "end");
 		
 	svg.append("text")
 		.text(function(){
 			return (rivalries[count].games-rivalries[count].won);
 		})
-		.attr("x", centreX+infoWidth/2-textPaddingSide)
+		.attr("x", centreX+textPaddingSide)
 		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
 		.attr("font-family", "Verdana")
 		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
+		.attr("text-anchor", "start");
 		
-	// Find out proportion of games won by team1
-	var gamesWonPercentage = rivalries[count].won/rivalries[count].games;
-	svg.append("rect")
-		.attr("x", centreX-gamesWonPercentage*barWidth)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+4)
-		.attr("fill", colourLightBlue)
-		.attr("stroke", colourBlack)
-		.attr("stroke-width", 3)
-		.attr("width", barWidth)
-		.attr("height", textSize);
+//	// Find out proportion of games won by team1
+//	var gamesWonPercentage = rivalries[count].won/rivalries[count].games;
+//	svg.append("rect")
+//		.attr("x", centreX-gamesWonPercentage*barWidth)
+//		.attr("y", textTop+(textSize+textPaddingBetween)*col+4)
+//		.attr("fill", colourLightBlue)
+//		.attr("stroke", colourBlack)
+//		.attr("stroke-width", 1)
+//		.attr("width", barWidth)
+//		.attr("height", textSize);
 		
 	// Add one to col
 	col++;
 		
+	// Points/Game descriptions
 	svg.append("text")
 		.text("Points/Game")
 		.attr("x", centreX-infoWidth/2+textPaddingSide)
@@ -237,17 +241,18 @@ function drawSelectedRivalry(count, svg, rivalries){
 		.attr("font-size", textSize)
 		.attr("text-anchor", "end");
 		
+	// Points/Game values
 	svg.append("text")
 		.text(function(){
 			var aveScore = (rivalries[count].team1score/rivalries[count].games);
 			aveScore = Number(aveScore).toFixed(1);
 			return aveScore;
 		})
-		.attr("x", centreX-infoWidth/2+textPaddingSide)
+		.attr("x", centreX-textPaddingSide*2)
 		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
 		.attr("font-family", "Verdana")
 		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
+		.attr("text-anchor", "end");
 		
 	svg.append("text")
 		.text(function(){
@@ -255,27 +260,65 @@ function drawSelectedRivalry(count, svg, rivalries){
 			aveScore = Number(aveScore).toFixed(1);
 			return aveScore;
 		})
+		.attr("x", centreX+textPaddingSide*2)
+		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
+		.attr("font-family", "Verdana")
+		.attr("font-size", textSize)
+		.attr("text-anchor", "start");
+	
+//	// Find out proportion of games won by team1
+//	var scorePercentage = rivalries[count].team1score/(Number(rivalries[count].team1score)+Number(rivalries[count].team2score));
+//	console.log(rivalries[count].team1score);
+//	console.log(rivalries[count].team2score);
+//	console.log((rivalries[count].team1score)+(rivalries[count].team2score));
+//	console.log(scorePercentage);
+//	svg.append("rect")
+//		.attr("x", centreX-scorePercentage*barWidth)
+//		.attr("y", textTop+(textSize+textPaddingBetween)*col+4)
+//		.attr("fill", colourLightBlue)
+//		.attr("stroke", colourBlack)
+//		.attr("stroke-width", 1)
+//		.attr("width", barWidth)
+//		.attr("height", textSize);
+	col++;
+		
+	// Overall Win Rate descriptions
+	svg.append("text")
+		.text("Overall Win Rate")
+		.attr("x", centreX-infoWidth/2+textPaddingSide)
+		.attr("y", textTop+(textSize+textPaddingBetween)*col)
+		.attr("font-family", "Verdana")
+		.attr("font-size", textSize)
+		.attr("text-anchor", "start");
+		
+	svg.append("text")
+		.text("Overall Win Rate")
 		.attr("x", centreX+infoWidth/2-textPaddingSide)
+		.attr("y", textTop+(textSize+textPaddingBetween)*col)
+		.attr("font-family", "Verdana")
+		.attr("font-size", textSize)
+		.attr("text-anchor", "end");
+		
+	// Overall Win Rate values
+	svg.append("text")
+		.text(function(){
+			return Number(findPercentage(allData, svg, rivalries[count].team1)).toFixed(2);
+		})
+		.attr("x", centreX-textPaddingSide*2)
 		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
 		.attr("font-family", "Verdana")
 		.attr("font-size", textSize)
 		.attr("text-anchor", "end");
-	
-	// Find out proportion of games won by team1
-	var scorePercentage = rivalries[count].team1score/(Number(rivalries[count].team1score)+Number(rivalries[count].team2score));
-	console.log(rivalries[count].team1score);
-	console.log(rivalries[count].team2score);
-	console.log((rivalries[count].team1score)+(rivalries[count].team2score));
-	console.log(scorePercentage);
-	svg.append("rect")
-		.attr("x", centreX-scorePercentage*barWidth)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+4)
-		.attr("fill", colourLightBlue)
-		.attr("stroke", colourBlack)
-		.attr("stroke-width", 3)
-		.attr("width", barWidth)
-		.attr("height", textSize);
-	col++;
+		
+	svg.append("text")
+		.text(function(){
+			return Number(findPercentage(allData, svg, rivalries[count].team2)).toFixed(2);
+		})
+		.attr("x", centreX+textPaddingSide*2)
+		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
+		.attr("font-family", "Verdana")
+		.attr("font-size", textSize)
+		.attr("text-anchor", "start");
 		
 	// Add dividing central line
 	svg.append("line")
@@ -284,7 +327,7 @@ function drawSelectedRivalry(count, svg, rivalries){
 		.attr("x2", centreX)
 		.attr("y2", centreY+infoHeight/2)
 		.attr("stroke", colourBlack)
-		.attr("stroke-width", 3);
+		.attr("stroke-width", 1);
 	
 	// Display team on left
 	svg.append("svg:image")
@@ -517,6 +560,59 @@ function createRivalries(){
 		}
 	}
 	return matchups;
+}
+
+function findPercentage (years, svg, team) {
+	var rounds = initRounds();
+	var bestRank = 99;
+	var numGames = 0;
+	var wonGames = 0;
+	for(var i=0; i<years.length; i++){ // for each year
+		for(var j=0; j<years[i].length; j++){ // for each game
+			var match = years[i][j];
+			var r = match.Round;
+			if(gameConcerningThisTeam(match, team)){
+				rounds[r].totalGames ++;
+				numGames++;
+				
+				var win = winOrLoss(match, team);
+				wonGames += win;
+				rounds[r].wins += win;
+			}
+		}
+	}
+	return wonGames/numGames*100;
+}
+
+function initRounds () {
+	var rounds = [];
+	for(var i=0; i<18; i++){ // total of 17 rounds, will count from 1
+		rounds[i] = {
+			wins : 0,
+			totalGames : 0			
+		}
+	}
+	return rounds;
+}
+
+function gameConcerningThisTeam (game, team) {
+	if(game['Home Team']===team || game['Away Team']===team){ // byes are ignored
+		//console.log("found a match");
+		return true;
+	}
+	return false;
+}
+
+function winOrLoss (game, team) {
+	var resH = game['Home Score']; // home score
+	var resA = game['Away Score']; // away score
+	if(resH>resA && game['Home Team'] === team){
+		return 1; // home team won and team was the home team
+	}
+	if (resH<resA && game['Away Team'] === team){
+		return 1;
+	}
+	return 0;
 }
 
 // Creates an svg with the given width and height
