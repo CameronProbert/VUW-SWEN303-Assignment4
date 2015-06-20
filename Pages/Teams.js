@@ -28,7 +28,7 @@ var bigPadding = 200;
 
 var view = "Overall";
 
-var welcomeMessage = ["Welcome to the teams pages!", "Here you can click to select a team and see imformation about them"];
+var welcomeMessage = ["Welcome to the Teams Pages!", "You can click to select a team to see imformation", "about them"];
 var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "Queensland Firebirds", "New South Wales Swifts", "West Coast Fever"];
 var NZTeams = ["Waikato Bay of Plenty Magic", "Northern Mystics", "Southern Steel", "Central Pulse", "Canterbury Tactix"];
 var year = 2013;
@@ -38,11 +38,31 @@ function doPage () {
 	svgHeight = 800;
 	var svg = getNewSVG(svgWidth, svgHeight);
 	clearSVG();
-	//drawHeading (svg);
+	drawHeading (svg);
 	drawASTeams (svg);
 	drawASBanners (svg);
 	drawNZTeams (svg);
 	drawNZBanners (svg);
+}
+
+function perSeason (year, team) {
+	d3.csv('data/'+year+'-Table1.csv', function (error, data){
+			if(error){return;}
+			var svg = getNewSVG(svgWidth, svgHeight);
+			clearSVG();
+			drawTitle (svg, team);
+			drawViewChange (svg, team, svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
+			
+			drawBanner (svg, year);
+			if(year===2013){
+				drawLeftTri(svg, year, team);
+			}else if(year===2008){
+				drawRightTri(svg, year, team);
+			}else{
+				drawLeftTri(svg, year, team);
+				drawRightTri(svg, year, team);
+			}
+	});
 }
 
 function overall(team, svg){
@@ -152,7 +172,6 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 		.range([0, heightMax-heightMin-graphPadding*2]);
 		
 	drawLine( (heightMax-graphPadding-scale(winRate)), svg);
-	drawLine(heightMax-graphPadding, svg);
 	for(var i=1; i<rounds.length; i++){
 		var wR;
 		if(rounds[i].totalGames!==0){
@@ -162,6 +181,7 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 		}
 		drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax);
 	}
+	drawLine(heightMax-graphPadding, svg);
 	
 	// round numbers
 	drawRounds (rounds, svg, heightMax);
@@ -188,7 +208,7 @@ function drawABar (svg, x, y, width, height, colorFill, colorStroke) {
 		.attr("width", width)
 		.attr("height", height)
 		.attr("fill", colorFill)
-		.attr("stroke-width", 3)
+		.attr("stroke-width", 1)
 		.attr("stroke", colorStroke);
 	
 }
@@ -222,7 +242,7 @@ function drawBar (i, wR, winRate, lowestWR, highestWR, svg, heightMin, heightMax
 	if(wR>=winRate){
 		color = colorPink;
 	}else{ color = colorLightBlue;}
-	drawABar (svg, x, y, width, height, color, colorBlack);
+	drawABar (svg, x, y, width, height, color, colorWhite);
 	
 }
 
@@ -270,7 +290,7 @@ function drawASTeams (svg) {
 		})
 		.attr("x", svgWidth/2)
 		.attr("y", function(d, i){
-			return i*(teamBannerHeight+barPadding);
+			return bigPadding + i*(teamBannerHeight+barPadding);
 		})
 		.attr("width", logoWidth)
 		.attr("height", teamBannerHeight)
@@ -308,8 +328,8 @@ function drawNZTeams (svg) {
 function drawlogo (team, svg, i) {
 	svg.append("svg:image")
 		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
-		.attr("x", barPadding)
-		.attr("y", 200+i*(teamBannerHeight+barPadding))
+		.attr("x", 0)
+		.attr("y", bigPadding+i*(teamBannerHeight+barPadding))
 		.attr("width", logoWidth)
 		.attr("height", teamBannerHeight)
 		.on('click', function(){
@@ -324,17 +344,6 @@ function drawNZBanners (svg) {
 	}
 }
 
-function perSeason (year, team) {
-	d3.csv('data/'+year+'-Table1.csv', function (error, data){
-			if(error){return;}
-			var svg = getNewSVG(svgWidth, svgHeight);
-			clearSVG();
-			drawTitle (svg, team);
-			drawViewChange (svg, team, svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
-		}
-	);
-}
-
 function getNewSVG (w, h) {
     var svg = d3.select("#mainsvg")
         .attr("width", w)
@@ -347,41 +356,40 @@ function clearSVG () {
 	d3.selectAll("svg > *").remove();
 }
 
-function drawLeftTri (svg, year)  {
+function drawLeftTri (svg, year, team)  {
 	var tip = "Previous Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
 			return "../Resources/arrows/LeftArrow.png";
 		})
 		.attr("x", 0)
-        .attr("y", svgHeight - arrowSize)
+        .attr("y", svgHeight - arrowSize-barPadding)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
-			perSeason(year);
+			perSeason(year, team);
 		});
 }
 
-function drawRightTri (svg, year)  {
+function drawRightTri (svg, year, team)  {
 	var tip = "Next Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
 			return "../Resources/arrows/RightArrow.png";
 		})
-		.attr("x", svgWidth - arrowSize )
+		.attr("x", svgWidth - arrowSize-barPadding )
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;
-			perSeason(year);
+			perSeason(year, team);
 		});
 }
 
-// drawn second after images so only needs to append the svg
 function drawBanner (svg, year) {
 	drawAnImage(svg, arrowSize, svgHeight - arrowSize, svgWidth-2*arrowSize, arrowSize, "../Resources/banners/banner_"+year+".png" );
 }
@@ -482,4 +490,24 @@ function drawTitle (svg, team) {
 	drawAnImage(svg, 0, topPadding+padding, logoWidth, teamBannerHeight, "../Resources/logos/logo_" + team + ".png");
 	// Banner
 	drawAnImage(svg, logoWidth, topPadding+padding, teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + team + ".png");
+}
+
+function drawHeading (svg) {
+	drawABar (svg, 0, 0, svgWidth, padding*2/3+25, colorLightBlue, colorWhite);
+	for(var i=0; i<welcomeMessage.length; i++){
+		var size = 60;
+		var x = barPadding;
+		var color = colorWhite;
+		var y = padding*2/3;
+		if(i!==0){
+			x = barPadding*4;
+			size = 30;
+			color = colorBlack;
+			y = y + i*60;
+		} 
+		if (i>1){
+			y = padding*2/3+i*50;
+		}
+		drawText (svg, welcomeMessage[i], x, y, size, "left", color);
+	}
 }
