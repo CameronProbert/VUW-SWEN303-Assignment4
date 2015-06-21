@@ -17,8 +17,10 @@ var arrowSize = 50;
 
 // GLOBAL PADDINGS
 var padding = 100;
-var barPadding = 5;
-var bottomPadding = 125;
+var barPadding = 20;
+var podiumPadding = 5;
+var bottomPadding = 75;
+var topPadding = 50;
 
 var svg;
 var podiumHeights = [100, 200, 150];
@@ -33,7 +35,9 @@ function doPage () {
 		svg = getNewSVG(svgWidth, svgHeight);
 		clearSVG();
 		
+		drawTitle ();
 		drawPodium();
+		
 		var topThree = getPlacings(data);
 		drawImages(topThree);
 		drawBanner();
@@ -115,7 +119,7 @@ function drawImages (topThree) {
 			return "../Resources/logos/logo_" + d + ".png";
 		})
 		.attr("x", function(d, i){
-			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*barPadding;
+			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*podiumPadding;
 		})
 		.attr("y", function(d, i){
 			return svgHeight-podiumHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
@@ -125,25 +129,21 @@ function drawImages (topThree) {
 }
 
 function drawPodium () {
-	svg.selectAll("rect") // podiums
-		.data(podiumHeights)
-		.enter()
-		.append("rect")
-		.attr("x", function(d, i){
-			return i * ( svgWidth - padding * 2 ) / 3 + padding;
-		})
-		.attr("y", function(d){
-			return svgHeight - d - bottomPadding;
-		})
-		.attr("width",(svgWidth-padding*2)/3-barPadding)
-		.attr("height", function(d){
-			return d;
-		})
-		.attr("fill", function(d, i){
-			if(i===0) return colorBronze;
-			if(i===1) return colorGold;
-			return colorSilver;
-		});
+		for (var i = 0; i < podiumHeights.length; i++){
+			var colourFill = colorBronze;
+			if (i===1){
+				colourFill = colorGold;
+			} else if (i===2){
+				colourFill = colorSilver;
+			}
+			drawRect (i * ( svgWidth - padding * 2 ) / 3 + padding, 
+				svgHeight - podiumHeights[i] - bottomPadding, 
+				(svgWidth-padding*2)/3-podiumPadding, 
+				podiumHeights[i], 
+				colourFill, 
+				colorWhite
+			)
+		}
 }
 
 function getPlacings (data) {
@@ -176,5 +176,49 @@ function ordered (topThree) {
 	placings[1] = topThree[0];
 	placings[2] = topThree[1];
 	return placings;
+}
+
+// Draws the title
+function drawTitle () {
+	// Team Banner
+	drawRect (0, 0, svgWidth, padding, colorLightBlue, colorWhite)
+	// Team Name
+	var textSize = 50;
+	drawText (barPadding, topPadding+barPadding, textSize, "start", colorWhite, "Final Placings for " + year);
+}
+
+// Draws and returns an svg Rectangle
+function drawRect (x, y, width, height, colorFill, colorStroke) {
+	return svg.append("rect")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height)
+		.attr("fill", colorFill)
+		.attr("stroke-width", 1)
+		.attr("stroke", colorStroke);
+}
+
+// Draws and returns an svg line
+function drawLine (x1, y1, x2, y2, width, colour) {
+	return svg.append("line")
+		.attr("x1", x1)
+		.attr("y1", y1)
+		.attr("x2", x2)
+		.attr("y2", y2)
+		.attr("stroke", colour)
+		.attr("stroke-width", width);
+}
+
+// Draws and returns an svg text (align is 'start', 'middle' or 'end')
+function drawText (x, y, size, align, color, text){
+	return svg.append("text")
+        .text(text)
+        .attr("x", x) 
+        .attr("y", y)
+        .attr("font-family", "Verdana")
+        .attr("font-size", size+"px")
+        .attr("fill", color)
+        .attr("text-anchor", align);
 }
 
