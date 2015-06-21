@@ -28,7 +28,7 @@ var bigPadding = 200;
 
 var view = "Overall";
 
-var welcomeMessage = ["Welcome to the Teams Pages!", "You can click to select a team to see imformation", "about them"];
+var welcomeMessage = ["Welcome to the Teams Pages!", "You can click to select a team to see information", "about them"];
 var AUTeams = ["Adelaide Thunderbirds", "Melbourne Vixens", "Queensland Firebirds", "New South Wales Swifts", "West Coast Fever"];
 var NZTeams = ["Waikato Bay of Plenty Magic", "Northern Mystics", "Southern Steel", "Central Pulse", "Canterbury Tactix"];
 var year = 2013;
@@ -48,10 +48,13 @@ function doPage () {
 function perSeason (year, team) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 			if(error){return;}
+			svgHeight = 1500;
 			var svg = getNewSVG(svgWidth, svgHeight);
 			clearSVG();
 			drawTitle (svg, team);
 			drawViewChange (svg, team, svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
+			drawRoundsPerSeason (svg, team, data, year);
+			
 			
 			drawBanner (svg, year);
 			if(year===2013){
@@ -63,6 +66,116 @@ function perSeason (year, team) {
 				drawRightTri(svg, year, team);
 			}
 	});
+}
+
+function drawRoundsPerSeason (svg, team, data, year) {
+	var matches = findGames (team, data);	
+	var maxScore = findMaxScore (team, matches);
+	var heightMin = topPadding+padding*2+barPadding+teamBannerHeight;
+	var heightMax = svgHeight-(padding);
+	var gapX = svgWidth - graphPadding*2-logoWidth;
+	var gapY = heightMax-heightMin-graphPadding*2;
+	
+	drawFrame (svg, heightMin, heightMax);
+	var scale = d3.scale.linear()
+		.domain([0, maxScore])
+		.range([0, gapX]);
+	
+	for(var i = 0; i<matches.length; i++){
+		var score1 = getScores(team, matches[i])[0];
+		var score2 = getScores(team, matches[i])[1];
+		var x1 = graphPadding;
+		var x2 = graphPadding + scale (score1);
+		var y = heightMin+graphPadding+i*gapY/matches.length;
+		var height = gapY/matches.length-barPadding
+		var width1 = scale(score1);
+		var width2 = scale(score2);
+		drawABar (svg, x1, y, width1, height, colorPink, colorWhite);
+		var other = drawABar (svg, x2, y, width2, height, colorLightBlue, colorWhite);
+		var otherTeamName = attachLink (svg, x2+scale(score2), y, matches[i], team, other, year);
+		
+		// draw other team logo
+		drawOtherTeamLogo (svg, x2+width2, y, height, otherTeamName)
+		
+		// Draw Round Number
+		drawText (svg, matches[i]['Round'], 0, y+height*2/3, 20, "start", colorBlack);
+		
+		// Draw score
+		drawText (svg, score1, x1+width1-barPadding, y+height*2/3, 20, "end", colorWhite);
+		drawText (svg, score2, x2+barPadding, y+height*2/3, 20, "start", colorWhite);
+	}
+	
+}
+
+function attachLink (svg, x, y, match, team, other, year) {
+	var otherTeamName = match['Home Team'];
+	if(match['Home Team']===team){otherTeamName = match['Away Team'];}
+	other.on ("click", function(){
+		perSeason (year, otherTeamName);
+	});
+	return otherTeamName;
+}
+
+function drawOtherTeamLogo (svg, x, y, barHeight, team) {
+	return svg.append("svg:image")
+		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
+		.attr("x", x+barPadding)
+		.attr("y", y-barPadding/2)
+		.attr("width", barHeight+barPadding)
+		.attr("height", barHeight+barPadding);
+}
+
+// returns the team given's score in position 0 and the other in pos 1 
+function getScores(team, match){
+	var scores = [];
+	if (team===match['Home Team']){
+		scores[0] = match['Home Score'];
+		scores[1] = match['Away Score'];
+	}else{
+		scores[1] = match['Home Score'];
+		scores[0] = match['Away Score'];
+	}
+	return scores;
+}
+
+function drawFrame (svg, heightMin, heightMax) {
+	
+	drawABar (svg, -10, heightMin, svgWidth+20, heightMax-heightMin, colorWhite, colorBlack);
+
+	// graph title
+	drawABar (svg, -10, heightMin-graphPadding-barPadding*2, svgWidth+20, graphPadding+barPadding*2, colorWhite, colorBlack);
+	drawText (svg, "Score Per Round", svgWidth/2, heightMin-graphPadding+barPadding, 40,"middle", colorBlack);
+	
+	// keys
+		//pink
+	drawABar (svg, barPadding, heightMin+barPadding/2, lilBar, lilBar, colorPink, colorWhite);
+	drawText (svg, "This team's score", barPadding + lilBar*2, heightMin+barPadding+4, 20, "left", colorBlack );
+		//blue
+	drawABar (svg, svgWidth/2, heightMin+barPadding/2, lilBar, lilBar, colorLightBlue, colorWhite);
+	drawText (svg, "The other team's score", svgWidth/2 + lilBar*2, heightMin+barPadding+4, 20, "left", colorBlack );
+}
+
+function findGames (team, data) {
+	var matches = [];
+	var count = 0;
+	for (var i=0; i<data.length; i++){
+		if (gameConcerningThisTeam (data[i], team)){
+			matches[count] = data[i];
+			count++;
+		}
+	}
+	return matches;
+}
+
+function findMaxScore (team, matches) {
+	var max = 0;
+	for (var i=0; i<matches.length; i++){
+		var sum = parseInt(matches[i]['Home Score']) + parseInt(matches[i]['Away Score']);
+		if (sum>max){
+			max = sum;
+		}
+	}
+	return max;
 }
 
 function overall(team, svg){
@@ -132,8 +245,7 @@ function initRounds () {
 }
 
 function gameConcerningThisTeam (game, team) {
-	if(game['Home Team']===team || game['Away Team']===team){ // byes are ignored
-		//console.log("found a match");
+	if(game['Home Team']===team || game['Away Team']===team){ 
 		return true;
 	}
 	return false;
@@ -160,7 +272,7 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 	//Border
 	var heightMin = topPadding+padding*2+barPadding+teamBannerHeight;
 	var heightMax = svgHeight-(barPadding*2);
-	drawABar (svg, 0, heightMin, svgWidth, heightMax-heightMin, colorWhite, colorBlack);
+	drawABar (svg, -10, heightMin, svgWidth+20, heightMax-heightMin, colorWhite, colorBlack);
 	// Graph
 	var lowestWR = getLowestandHighestWR(rounds)[0];
 	var highestWR = getLowestandHighestWR(rounds)[1];
@@ -188,21 +300,21 @@ function drawGraph (rounds, wonGames, winRate, team, svg) {
 	drawText (svg, "Rounds", svgWidth/2, heightMax+graphPadding/2, 40,"middle", colorBlack);
 	
 	// graph title
-	drawABar (svg, 0, heightMin-graphPadding-barPadding*2, svgWidth, graphPadding+barPadding*2, colorWhite, colorBlack);
+	drawABar (svg, -10, heightMin-graphPadding-barPadding*2, svgWidth+20, graphPadding+barPadding*2, colorWhite, colorBlack);
 	drawText (svg, "Average Win Rate Per Round", svgWidth/2, heightMin-graphPadding+barPadding, 40,"middle", colorBlack);
 	
 	// keys
 		//pink
-	drawABar (svg, barPadding, heightMin+barPadding/2, lilBar, lilBar, colorPink, colorBlack);
+	drawABar (svg, barPadding, heightMin+barPadding/2, lilBar, lilBar, colorPink, colorWhite);
 	drawText (svg, "Win rates above average", barPadding + lilBar*2, heightMin+barPadding+4, 20, "left", colorBlack );
 		//blue
-	drawABar (svg, svgWidth/2, heightMin+barPadding/2, lilBar, lilBar, colorLightBlue, colorBlack);
+	drawABar (svg, svgWidth/2, heightMin+barPadding/2, lilBar, lilBar, colorLightBlue, colorWhite);
 	drawText (svg, "Win rates below average", svgWidth/2 + lilBar*2, heightMin+barPadding+4, 20, "left", colorBlack );
 	
 }
 
 function drawABar (svg, x, y, width, height, colorFill, colorStroke) {
-	svg.append("rect")
+	return svg.append("rect")
 		.attr("x", x)
 		.attr("y", y)
 		.attr("width", width)
@@ -380,7 +492,7 @@ function drawRightTri (svg, year, team)  {
 			return "../Resources/arrows/RightArrow.png";
 		})
 		.attr("x", svgWidth - arrowSize-barPadding )
-        .attr("y", svgHeight - arrowSize)
+        .attr("y", svgHeight - arrowSize-barPadding)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
 		.on('click', function(){
@@ -391,7 +503,7 @@ function drawRightTri (svg, year, team)  {
 }
 
 function drawBanner (svg, year) {
-	drawAnImage(svg, arrowSize, svgHeight - arrowSize, svgWidth-2*arrowSize, arrowSize, "../Resources/banners/banner_"+year+".png" );
+	drawAnImage(svg, arrowSize, svgHeight - arrowSize*2, (svgWidth-2*arrowSize), arrowSize*2, "../Resources/banners/banner_"+year+".png" );
 }
 
 function drawAnImage (svg, x, y, width, height, name){ // no on click function tho
