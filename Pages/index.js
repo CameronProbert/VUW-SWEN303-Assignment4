@@ -17,36 +17,38 @@ var arrowSize = 50;
 
 // GLOBAL PADDINGS
 var padding = 100;
-var barPadding = 5;
+var barPadding = 20;
+var podiumPadding = 5;
 var bottomPadding = 75;
+var topPadding = 50;
 
-
-var rectHeights = [100, 200, 150];
-
+var svg;
+var podiumHeights = [100, 200, 150];
 var year = 2013;
-doPage(year);
 
+// Start of code =====================================================================================================
+doPage();
 
-
-
-function doPage (year) {
+function doPage () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
-		var svg = getNewSVG(svgWidth, svgHeight);
+		svg = getNewSVG(svgWidth, svgHeight);
 		clearSVG();
 		
-		drawPodium(svg);
+		drawTitle ();
+		drawPodium();
+		
 		var topThree = getPlacings(data);
-		drawImages(svg, topThree);
-		drawBanner(svg, year);
+		drawImages(topThree);
+		drawBanner();
 		
 		if(year===2013){
-			drawLeftTri(svg, year);
+			drawLeftTri();
 		}else if(year===2008){
-			drawRightTri(svg, year);
+			drawRightTri();
 		}else{
-			drawLeftTri(svg, year);
-			drawRightTri(svg, year);
+			drawLeftTri();
+			drawRightTri();
 		}
 });}
 
@@ -62,7 +64,7 @@ function clearSVG () {
 	d3.selectAll("svg > *").remove();
 }
 
-function drawLeftTri (svg, year)  {
+function drawLeftTri ()  {
 	var tip = "Previous Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
@@ -75,11 +77,11 @@ function drawLeftTri (svg, year)  {
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
-			doPage(year);
+			doPage();
 		});
 }
 
-function drawRightTri (svg, year)  {
+function drawRightTri ()  {
 	var tip = "Next Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
@@ -92,12 +94,12 @@ function drawRightTri (svg, year)  {
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;
-			doPage(year);
+			doPage();
 		});
 }
 
 // drawn second after images so only needs to append the svg
-function drawBanner (svg, year) {
+function drawBanner () {
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
 			return "../Resources/banners/banner_"+year+".png";
@@ -108,7 +110,7 @@ function drawBanner (svg, year) {
         .attr("height", arrowSize)
 }
 
-function drawImages (svg, topThree) {
+function drawImages (topThree) {
 	var imgs = svg.selectAll("image")
 		.data(topThree)
 		.enter()
@@ -117,35 +119,31 @@ function drawImages (svg, topThree) {
 			return "../Resources/logos/logo_" + d + ".png";
 		})
 		.attr("x", function(d, i){
-			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*barPadding;
+			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*podiumPadding;
 		})
 		.attr("y", function(d, i){
-			return svgHeight-rectHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
+			return svgHeight-podiumHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
 		})
 		.attr("width",(svgWidth-padding*2)/6)
 		.attr("height",(svgWidth-padding*2)/6);
 }
 
-function drawPodium (svg) {
-	svg.selectAll("rect") // podiums
-		.data(rectHeights)
-		.enter()
-		.append("rect")
-		.attr("x", function(d, i){
-			return i * ( svgWidth - padding * 2 ) / 3 + padding;
-		})
-		.attr("y", function(d){
-			return svgHeight - d - bottomPadding;
-		})
-		.attr("width",(svgWidth-padding*2)/3-barPadding)
-		.attr("height", function(d){
-			return d;
-		})
-		.attr("fill", function(d, i){
-			if(i===0) return colorBronze;
-			if(i===1) return colorGold;
-			return colorSilver;
-		});
+function drawPodium () {
+		for (var i = 0; i < podiumHeights.length; i++){
+			var colourFill = colorBronze;
+			if (i===1){
+				colourFill = colorGold;
+			} else if (i===2){
+				colourFill = colorSilver;
+			}
+			drawRect (i * ( svgWidth - padding * 2 ) / 3 + padding, 
+				svgHeight - podiumHeights[i] - bottomPadding, 
+				(svgWidth-padding*2)/3-podiumPadding, 
+				podiumHeights[i], 
+				colourFill, 
+				colorWhite
+			)
+		}
 }
 
 function getPlacings (data) {
@@ -178,5 +176,49 @@ function ordered (topThree) {
 	placings[1] = topThree[0];
 	placings[2] = topThree[1];
 	return placings;
+}
+
+// Draws the title
+function drawTitle () {
+	// Team Banner
+	drawRect (0, 0, svgWidth, padding, colorLightBlue, colorWhite)
+	// Team Name
+	var textSize = 50;
+	drawText (barPadding, topPadding+barPadding, textSize, "start", colorWhite, "Final Placings for " + year);
+}
+
+// Draws and returns an svg Rectangle
+function drawRect (x, y, width, height, colorFill, colorStroke) {
+	return svg.append("rect")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height)
+		.attr("fill", colorFill)
+		.attr("stroke-width", 1)
+		.attr("stroke", colorStroke);
+}
+
+// Draws and returns an svg line
+function drawLine (x1, y1, x2, y2, width, colour) {
+	return svg.append("line")
+		.attr("x1", x1)
+		.attr("y1", y1)
+		.attr("x2", x2)
+		.attr("y2", y2)
+		.attr("stroke", colour)
+		.attr("stroke-width", width);
+}
+
+// Draws and returns an svg text (align is 'start', 'middle' or 'end')
+function drawText (x, y, size, align, color, text){
+	return svg.append("text")
+        .text(text)
+        .attr("x", x) 
+        .attr("y", y)
+        .attr("font-family", "Verdana")
+        .attr("font-size", size+"px")
+        .attr("fill", color)
+        .attr("text-anchor", align);
 }
 
