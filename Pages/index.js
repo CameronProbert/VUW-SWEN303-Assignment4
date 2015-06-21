@@ -18,35 +18,33 @@ var arrowSize = 50;
 // GLOBAL PADDINGS
 var padding = 100;
 var barPadding = 5;
-var bottomPadding = 75;
+var bottomPadding = 125;
 
-
-var rectHeights = [100, 200, 150];
-
+var svg;
+var podiumHeights = [100, 200, 150];
 var year = 2013;
-doPage(year);
 
+// Start of code =====================================================================================================
+doPage();
 
-
-
-function doPage (year) {
+function doPage () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
-		var svg = getNewSVG(svgWidth, svgHeight);
+		svg = getNewSVG(svgWidth, svgHeight);
 		clearSVG();
 		
-		drawPodium(svg);
+		drawPodium();
 		var topThree = getPlacings(data);
-		drawImages(svg, topThree);
-		drawBanner(svg, year);
+		drawImages(topThree);
+		drawBanner();
 		
 		if(year===2013){
-			drawLeftTri(svg, year);
+			drawLeftTri();
 		}else if(year===2008){
-			drawRightTri(svg, year);
+			drawRightTri();
 		}else{
-			drawLeftTri(svg, year);
-			drawRightTri(svg, year);
+			drawLeftTri();
+			drawRightTri();
 		}
 });}
 
@@ -62,7 +60,7 @@ function clearSVG () {
 	d3.selectAll("svg > *").remove();
 }
 
-function drawLeftTri (svg, year)  {
+function drawLeftTri ()  {
 	var tip = "Previous Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
@@ -75,11 +73,11 @@ function drawLeftTri (svg, year)  {
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
-			doPage(year);
+			doPage();
 		});
 }
 
-function drawRightTri (svg, year)  {
+function drawRightTri ()  {
 	var tip = "Next Year";
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
@@ -92,12 +90,12 @@ function drawRightTri (svg, year)  {
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;
-			doPage(year);
+			doPage();
 		});
 }
 
 // drawn second after images so only needs to append the svg
-function drawBanner (svg, year) {
+function drawBanner () {
 	svg.append("svg:image")
 		.attr("xlink:href", function(d){
 			return "../Resources/banners/banner_"+year+".png";
@@ -108,7 +106,7 @@ function drawBanner (svg, year) {
         .attr("height", arrowSize)
 }
 
-function drawImages (svg, topThree) {
+function drawImages (topThree) {
 	var imgs = svg.selectAll("image")
 		.data(topThree)
 		.enter()
@@ -120,15 +118,15 @@ function drawImages (svg, topThree) {
 			return i*(svgWidth-padding*2)/3+padding + (svgWidth-padding*2)/12 - 2*barPadding;
 		})
 		.attr("y", function(d, i){
-			return svgHeight-rectHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
+			return svgHeight-podiumHeights[i]-(svgWidth-padding*2)/6 - bottomPadding;
 		})
 		.attr("width",(svgWidth-padding*2)/6)
 		.attr("height",(svgWidth-padding*2)/6);
 }
 
-function drawPodium (svg) {
+function drawPodium () {
 	svg.selectAll("rect") // podiums
-		.data(rectHeights)
+		.data(podiumHeights)
 		.enter()
 		.append("rect")
 		.attr("x", function(d, i){
