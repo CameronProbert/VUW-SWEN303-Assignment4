@@ -1,6 +1,7 @@
 // COLOURS
 var colourDarkBlue = "rgb(0, 122,182)";
 var colourLightBlue = "rgb(0, 157, 221)";
+var colourLighterBlue = "rgb(70, 197, 240)";
 var colourWhite = "rgb(255, 255, 255)";
 var colourPink = "rgb(237, 0, 140)";
 var colourBlack = "rgb(0, 0, 0)";
@@ -8,10 +9,11 @@ var colourGrey = "rgb(240, 240, 240)";
 
 // GLOBAL SIZES
 var svgWidth = 1000;
-var svgHeight = 1000;
+var svgHeight = 1200;
 var iconSize = 100;
 var rivalryPadding = 30;
 var arrowSize = 50;
+var graphTop = 130;
 
 // GLOBAL PADDINGS
 var padding = 50;
@@ -21,6 +23,7 @@ var bottomPadding = 75;
 var RIVALRIES_TO_SHOW = 6;
 
 var selectedRivalry = RIVALRIES_TO_SHOW+1;
+var svg;
 
 doPage();
 
@@ -40,13 +43,13 @@ function doPage () {
 							if(error){return;}
 							
 							// Set the height of the svg
-							svgHeight = RIVALRIES_TO_SHOW*(iconSize+rivalryPadding);
+							svgHeight = RIVALRIES_TO_SHOW*(iconSize+rivalryPadding)+graphTop;
 							if (selectedRivalry<RIVALRIES_TO_SHOW){
 								svgHeight+=250;
 							}
 
 							// Create a new SVG and then make sure it is clear
-							var svg = getNewSVG(svgWidth, svgHeight);
+							getNewSVG(svgWidth, svgHeight);
 							clearSVG();
 
 							// Aggregate the data together
@@ -119,7 +122,7 @@ function doPage () {
 								topRivalries[topRivalries.length] = rivalries[i];
 							}
 							
-							drawRivalries(svg, topRivalries, selectedRivalry, allData);
+							drawRivalries(topRivalries, selectedRivalry, allData);
 							
 						});
 					});
@@ -129,233 +132,84 @@ function doPage () {
 	});
 }
 
-function drawRivalries(svg, rivalries, selectedRivalry, allData){
+function drawRivalries(rivalries, selectedRivalry, allData){
+
+	drawTitle ();
 
 	// Loop through all the rivalries
 	for (var count = 0; count < RIVALRIES_TO_SHOW && count < rivalries.length; count++){
 	
 		// If this is the selected rivalry
 		if (count === selectedRivalry){
-			drawSelectedRivalry(count, svg, rivalries, allData);
+			drawSelectedRivalry(count, rivalries, allData);
 		}
 		// If this is not the selected rivalry
 		else {
-			drawUnselectedRivalry(count, selectedRivalry, svg, rivalries);
+			drawUnselectedRivalry(count, selectedRivalry, rivalries);
 		}
 	}
 }
 
 // Draws the selected rivalry
-function drawSelectedRivalry(count, svg, rivalries, allData){
+function drawSelectedRivalry(count, rivalries, allData){
 
 	// Text area variables
 	var centreX = 500;
-	var centreY = count*(iconSize+rivalryPadding)+iconSize/2+150;
+	var centreY = count*(iconSize+rivalryPadding)+iconSize/2+150+graphTop;
 	var infoWidth = 560;
 	var infoHeight = 300;
 	var textSize = 20;
-	var textPaddingSide = 5;
+	var textColour = colourWhite;
+	var textPaddingSide = 30;
 	var textPaddingBetween = 60;
 	var textTop = centreY-70;
+	var textGap = 5;
 	var barWidth = 400;
 	
 	// Display text box
-	svg.append("rect")
-		.attr("x", centreX-infoWidth/2)
-		.attr("y", centreY-infoHeight/2)
-		.attr("fill", colourGrey)
-		.attr("stroke", colourBlack)
-		.attr("stroke-width", 1)
-		.attr("width", infoWidth)
-		.attr("height", infoHeight);
+	drawRect (centreX-infoWidth/2, centreY-infoHeight/2, infoWidth, infoHeight, colourLighterBlue, colourWhite)
 		
 	// Put info in box
-	var col = 0;
+	var strings = ["Games Won", "Points/Game", "Overall Win Rate"];
+	var values = [
+		[
+			rivalries[count].won, 
+			rivalries[count].games-rivalries[count].won
+		], 
+		[
+			Number(rivalries[count].team1score/rivalries[count].games).toFixed(1), 
+			Number(rivalries[count].team2score/rivalries[count].games).toFixed(1)
+		], 
+		[
+			Number(findPercentage(allData, rivalries[count].team1)).toFixed(1) + "%", 
+			Number(findPercentage(allData, rivalries[count].team2)).toFixed(1) + "%"
+		]
+	];
 	
-	// Games won descriptions
-	svg.append("text")
-		.text("Games Won")
-		.attr("x", centreX-infoWidth/2+textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
-		
-	svg.append("text")
-		.text("Games Won")
-		.attr("x", centreX+infoWidth/2-textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
-		
-	// Games won values
-	svg.append("text")
-		.text(function(){
-			return rivalries[count].won;
-		})
-		.attr("x", centreX-textPaddingSide*2)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
-		
-	svg.append("text")
-		.text(function(){
-			return (rivalries[count].games-rivalries[count].won);
-		})
-		.attr("x", centreX+textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
-		
-//	// Find out proportion of games won by team1
-//	var gamesWonPercentage = rivalries[count].won/rivalries[count].games;
-//	svg.append("rect")
-//		.attr("x", centreX-gamesWonPercentage*barWidth)
-//		.attr("y", textTop+(textSize+textPaddingBetween)*col+4)
-//		.attr("fill", colourLightBlue)
-//		.attr("stroke", colourBlack)
-//		.attr("stroke-width", 1)
-//		.attr("width", barWidth)
-//		.attr("height", textSize);
-		
-	// Add one to col
-	col++;
-		
-	// Points/Game descriptions
-	svg.append("text")
-		.text("Points/Game")
-		.attr("x", centreX-infoWidth/2+textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
-		
-	svg.append("text")
-		.text("Points/Game")
-		.attr("x", centreX+infoWidth/2-textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
-		
-	// Points/Game values
-	svg.append("text")
-		.text(function(){
-			var aveScore = (rivalries[count].team1score/rivalries[count].games);
-			aveScore = Number(aveScore).toFixed(1);
-			return aveScore;
-		})
-		.attr("x", centreX-textPaddingSide*2)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
-		
-	svg.append("text")
-		.text(function(){
-			var aveScore = (rivalries[count].team2score/rivalries[count].games);
-			aveScore = Number(aveScore).toFixed(1);
-			return aveScore;
-		})
-		.attr("x", centreX+textPaddingSide*2)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
+	// Draw all the data inside the table
+	for (var col = 0; col < strings.length; col++){
 	
-//	// Find out proportion of games won by team1
-//	var scorePercentage = rivalries[count].team1score/(Number(rivalries[count].team1score)+Number(rivalries[count].team2score));
-//	console.log(rivalries[count].team1score);
-//	console.log(rivalries[count].team2score);
-//	console.log((rivalries[count].team1score)+(rivalries[count].team2score));
-//	console.log(scorePercentage);
-//	svg.append("rect")
-//		.attr("x", centreX-scorePercentage*barWidth)
-//		.attr("y", textTop+(textSize+textPaddingBetween)*col+4)
-//		.attr("fill", colourLightBlue)
-//		.attr("stroke", colourBlack)
-//		.attr("stroke-width", 1)
-//		.attr("width", barWidth)
-//		.attr("height", textSize);
-	col++;
+		// Headings
+		drawText (centreX-infoWidth/2+textPaddingSide, textTop+(textSize+textPaddingBetween)*col, textSize, "start", textColour, strings[col]);
+		drawText (centreX+infoWidth/2-textPaddingSide, textTop+(textSize+textPaddingBetween)*col, textSize, "end", textColour, strings[col]);
 		
-	// Overall Win Rate descriptions
-	svg.append("text")
-		.text("Overall Win Rate")
-		.attr("x", centreX-infoWidth/2+textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
-		
-	svg.append("text")
-		.text("Overall Win Rate")
-		.attr("x", centreX+infoWidth/2-textPaddingSide)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
-		
-	// Overall Win Rate values
-	svg.append("text")
-		.text(function(){
-			return Number(findPercentage(allData, svg, rivalries[count].team1)).toFixed(2);
-		})
-		.attr("x", centreX-textPaddingSide*2)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "end");
-		
-	svg.append("text")
-		.text(function(){
-			return Number(findPercentage(allData, svg, rivalries[count].team2)).toFixed(2);
-		})
-		.attr("x", centreX+textPaddingSide*2)
-		.attr("y", textTop+(textSize+textPaddingBetween)*col+textSize+1)
-		.attr("font-family", "Verdana")
-		.attr("font-size", textSize)
-		.attr("text-anchor", "start");
-		
+		// Values
+		drawText (centreX-textPaddingSide, textTop+(textSize+textPaddingBetween)*col+textSize+textGap, textSize, "end", textColour, values[col][0]);
+		drawText (centreX+textPaddingSide, textTop+(textSize+textPaddingBetween)*col+textSize+textGap, textSize, "start", textColour, values[col][1]);
+	}
+	
 	// Add dividing central line
-	svg.append("line")
-		.attr("x1", centreX)
-		.attr("y1", centreY-infoHeight/2)
-		.attr("x2", centreX)
-		.attr("y2", centreY+infoHeight/2)
-		.attr("stroke", colourBlack)
-		.attr("stroke-width", 1);
+	drawLine (centreX, centreY-infoHeight/2, centreX, centreY+infoHeight/2, 1, colourWhite);
 	
 	// Display team on left
-	svg.append("svg:image")
-		.attr("xlink:href", function(){
-			return "../Resources/logos/logo_" + rivalries[count].team1 + ".png";
-		})
-		.attr("x", 100)
-		.attr("y", function(){
-			return count*(iconSize+rivalryPadding);
-		})
-		.attr("width",iconSize)
-		.attr("height",iconSize)
+	drawlogo (100, count*(iconSize+rivalryPadding)+graphTop, iconSize, rivalries[count].team1)
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
 		});
 	
 	// Display team on right
-	svg.append("svg:image")
-		.attr("xlink:href", function(){
-			return "../Resources/logos/logo_" + rivalries[count].team2 + ".png";
-		})
-		.attr("x", 800)
-		.attr("y", function(){
-			return count*(iconSize+rivalryPadding);
-		})
-		.attr("width",iconSize)
-		.attr("height",iconSize)
+	drawlogo (800, count*(iconSize+rivalryPadding)+graphTop, iconSize, rivalries[count].team2)
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -366,49 +220,14 @@ function drawSelectedRivalry(count, svg, rivalries, allData){
 	var bannerPadding = 10;
 
 	// Display team banners for left teams
-	svg.append("svg:image")
-		.attr("xlink:href", function(){
-			return "../Resources/banners/banner_" + rivalries[count].team1 + ".png";
-		})
-		.attr("x", 210)
-		.attr("y", function(){
-			return count*(iconSize+rivalryPadding);
-		})
-		.attr("width",bannerWidth)
-		.attr("height",bannerHeight)
+	drawTeamBanner (210, count*(iconSize+rivalryPadding)+graphTop, bannerWidth, bannerHeight, rivalries[count].team1)
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
 		});
 
 	// Display team banners for right teams
-	svg.append("svg:image")
-		.attr("xlink:href", function(){
-			return "../Resources/banners/banner_" + rivalries[count].team2 + ".png";
-		})
-		.attr("x", 800-bannerWidth-bannerPadding)
-		.attr("y", function(){
-			return count*(bannerHeight+rivalryPadding);
-		})
-		.attr("width",bannerWidth)
-		.attr("height",bannerHeight)
-		.on("click",function(){
-			selectRivalry(count);
-			doPage();
-		});
-
-	// Display versus symbol in the centre of each banner
-	var vsSize = 150;
-	svg.append("svg:image")
-		.attr("xlink:href", function(){
-			return "../Resources/banners/banner_" + rivalries[count].team2 + ".png";
-		})
-		.attr("x", 800-bannerWidth-bannerPadding)
-		.attr("y", function(){
-			return count*(bannerHeight+rivalryPadding);
-		})
-		.attr("width",bannerWidth)
-		.attr("height",bannerHeight)
+	drawTeamBanner (800-bannerWidth-bannerPadding, count*(iconSize+rivalryPadding)+graphTop, bannerWidth, bannerHeight, rivalries[count].team2)
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -416,16 +235,7 @@ function drawSelectedRivalry(count, svg, rivalries, allData){
 
 	// Display versus symbol in the centre of each banner
 	var vsSize = 100;
-	svg.append("svg:image")
-		.attr("xlink:href", function(){
-			return "../Resources/banners/banner_VS.png";
-		})
-		.attr("x", 1/2*svgWidth-1/2*vsSize)
-		.attr("y", function(){
-			return count*(bannerHeight+rivalryPadding);
-		})
-		.attr("width",vsSize)
-		.attr("height",vsSize)
+	drawAnImage (1/2*svgWidth-1/2*vsSize, count*(bannerHeight+rivalryPadding)+graphTop, vsSize, vsSize, "../Resources/banners/banner_VS.png")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -433,12 +243,11 @@ function drawSelectedRivalry(count, svg, rivalries, allData){
 }
 
 // Draws a single unselected rivalry
-function drawUnselectedRivalry(count, selectedRivalry, svg, rivalries){
+function drawUnselectedRivalry(count, selectedRivalry, rivalries){
 	console.log("count: " + count + "| selected: " + selectedRivalry );
 	var modifier = 0;
 	if (count > selectedRivalry){
 		modifier = 250;
-		console.log("Adjusting Modifier");
 	}
 
 	// Display team on left
@@ -449,7 +258,7 @@ function drawUnselectedRivalry(count, selectedRivalry, svg, rivalries){
 		.attr("x", 100)
 		.attr("y", function(){
 			
-			return count*(iconSize+rivalryPadding)+modifier;
+			return count*(iconSize+rivalryPadding)+modifier+graphTop;
 		})
 		.attr("width",iconSize)
 		.attr("height",iconSize)
@@ -465,7 +274,7 @@ function drawUnselectedRivalry(count, selectedRivalry, svg, rivalries){
 		})
 		.attr("x", 800)
 		.attr("y", function(){
-			return count*(iconSize+rivalryPadding)+modifier;
+			return count*(iconSize+rivalryPadding)+modifier+graphTop;
 		})
 		.attr("width",iconSize)
 		.attr("height",iconSize)
@@ -485,7 +294,7 @@ function drawUnselectedRivalry(count, selectedRivalry, svg, rivalries){
 		})
 		.attr("x", 210)
 		.attr("y", function(){
-			return count*(iconSize+rivalryPadding)+modifier;
+			return count*(iconSize+rivalryPadding)+modifier+graphTop;
 		})
 		.attr("width",bannerWidth)
 		.attr("height",bannerHeight)
@@ -501,7 +310,7 @@ function drawUnselectedRivalry(count, selectedRivalry, svg, rivalries){
 		})
 		.attr("x", 800-bannerWidth-bannerPadding)
 		.attr("y", function(){
-			return count*(bannerHeight+rivalryPadding)+modifier;
+			return count*(bannerHeight+rivalryPadding)+modifier+graphTop;
 		})
 		.attr("width",bannerWidth)
 		.attr("height",bannerHeight)
@@ -518,7 +327,7 @@ function drawUnselectedRivalry(count, selectedRivalry, svg, rivalries){
 		})
 		.attr("x", 1/2*svgWidth-1/2*vsSize)
 		.attr("y", function(){
-			return count*(bannerHeight+rivalryPadding)+modifier;
+			return count*(bannerHeight+rivalryPadding)+modifier+graphTop;
 		})
 		.attr("width",vsSize)
 		.attr("height",vsSize)
@@ -562,7 +371,7 @@ function createRivalries(){
 	return matchups;
 }
 
-function findPercentage (years, svg, team) {
+function findPercentage (years, team) {
 	var rounds = initRounds();
 	var bestRank = 99;
 	var numGames = 0;
@@ -615,18 +424,121 @@ function winOrLoss (game, team) {
 	return 0;
 }
 
-// Creates an svg with the given width and height
+// Draws and returns an svg Rectangle
+function drawRect (x, y, width, height, colorFill, colorStroke) {
+	return svg.append("rect")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height)
+		.attr("fill", colorFill)
+		.attr("stroke-width", 1)
+		.attr("stroke", colorStroke);
+}
+
+// Draws and returns an svg line
+function drawLine (x1, y1, x2, y2, width, colour) {
+	return svg.append("line")
+		.attr("x1", x1)
+		.attr("y1", y1)
+		.attr("x2", x2)
+		.attr("y2", y2)
+		.attr("stroke", colour)
+		.attr("stroke-width", width);
+}
+
+// Draws and returns an svg text (align is 'start', 'middle' or 'end')
+function drawText (x, y, size, align, color, text){
+	return svg.append("text")
+        .text(text)
+        .attr("x", x) 
+        .attr("y", y)
+        .attr("font-family", "Verdana")
+        .attr("font-size", size+"px")
+        .attr("fill", color)
+        .attr("text-anchor", align);
+}
+
+// Draws a team Banner
+function drawTeamBanner (x, y, width, height, teamName) {	
+	return svg.append("svg:image")
+		.attr("xlink:href", "../Resources/banners/banner_" + teamName + ".png")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height);
+}
+
+// Draws and returns a team logo
+function drawlogo (x, y, size, teamName) {
+	return svg.append("svg:image")
+		.attr("xlink:href", "../Resources/logos/logo_" + teamName + ".png")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", size)
+		.attr("height", size);
+}
+
+// Replaces the id mainsvg with a new svg
 function getNewSVG (w, h) {
-    var svg = d3.select("#mainsvg")
+    svg = d3.select("#mainsvg")
         .attr("width", w)
         .attr("height", h)
         .attr("class", "centered");
-	return svg;
 }
 
-// Removes all items from all svgs
+// Clears the svg
 function clearSVG () {
 	d3.selectAll("svg > *").remove();
+}
+
+// Draws the previous season triangle
+function drawLeftTri ()  {
+	var tip = "Previous Year";
+	drawAnImage (0, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/LeftArrow.png")
+		.on('click', function(){
+			d3.event.stopPropagation();
+			year = year - 1;
+			perSeason();
+		});
+}
+
+// Draws the next season triangle
+function drawRightTri ()  {
+	var tip = "Next Year";
+	drawAnImage (svgWidth - arrowSize-barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/RightArrow.png")
+		.on('click', function(){
+			d3.event.stopPropagation();
+			year = year + 1;
+			perSeason();
+		});
+}
+
+// Draws the banner displaying the season
+function drawBanner (year) {
+	return drawAnImage(arrowSize, svgHeight - arrowSize-barPadding, svgWidth-arrowSize*2, arrowSize, "../Resources/banners/banner_"+year+".png" );
+}
+
+// Draws and returns an svg image
+function drawAnImage (x, y, width, height, name){
+	//console.log("Drawing image at "+x+","+y+" and "+width+" wide, "+height+" high and named "+name+".");
+	return svg.append("svg:image")
+		.attr("xlink:href", name)
+		.attr("x", x)
+		.attr("y", y)
+		.attr("width", width)
+		.attr("height", height);
+}
+
+// Draws the title
+function drawTitle () {
+	var topPadding = 50;
+	// Team Banner
+	drawRect (0, 0, svgWidth, 100, colourLightBlue, colourWhite)
+	// Team Name
+	var textSize = 50;
+	var textPadding = 20;
+	drawText (textPadding, topPadding+textPadding, textSize, "start", colourWhite, "Top Six Rivalries")
 }
 
 // Removes the spaces from the first and last position of strings (if they exist)

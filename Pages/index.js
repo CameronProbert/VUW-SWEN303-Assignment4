@@ -19,7 +19,7 @@ var arrowSize = 50;
 var padding = 100;
 var barPadding = 20;
 var podiumPadding = 5;
-var bottomPadding = 75;
+var bottomPadding = 100;
 var topPadding = 50;
 
 var svg;
@@ -107,9 +107,9 @@ function drawBanner () {
 			return "../Resources/banners/banner_"+year+".png";
 		})
 		.attr("x", arrowSize)
-        .attr("y", svgHeight - arrowSize)
+        .attr("y", svgHeight - arrowSize*2)
         .attr("width", svgWidth-2*arrowSize)
-        .attr("height", arrowSize)
+        .attr("height", arrowSize*2)
 }
 
 function drawImages (topThree) {
@@ -138,13 +138,27 @@ function drawPodium () {
 			} else if (i===2){
 				colourFill = colorSilver;
 			}
-			drawRect (i * ( svgWidth - padding * 2 ) / 3 + padding, 
+			drawRect (
+				i * ( svgWidth - padding * 2 ) / 3 + padding, 
 				svgHeight - podiumHeights[i] - bottomPadding, 
 				(svgWidth-padding*2)/3-podiumPadding, 
 				podiumHeights[i], 
 				colourFill, 
 				colorWhite
 			)
+			var place = i%3;
+			if (place ===0){
+				place = 3;
+			}
+			var textSize = 50;
+			drawText (
+				i * ( svgWidth - padding * 2 ) / 3 + padding + ((svgWidth-padding*2)/3-podiumPadding)/2, 
+				svgHeight - podiumHeights[i] - bottomPadding+textSize, 
+				textSize, 
+				"middle", 
+				colorWhite, 
+				place
+			);
 		}
 }
 
