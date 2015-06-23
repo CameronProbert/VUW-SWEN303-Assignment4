@@ -4,8 +4,9 @@
 // COLOURS
 var colorDarkBlue = "rgb(0, 122,182)";
 var colorLightBlue = "rgb(0, 157, 221)";
-var colorWhite = "rgb(255, 255, 255)";
 var colorPink = "rgb(237, 0, 140)";
+var colorPurple = "rgb(119, 78, 181)"
+var colorWhite = "rgb(255, 255, 255)";
 var colorBlack = "rgb(0, 0, 0)";
 var colorGrey = "rgb(225, 225, 225)";
 
@@ -21,6 +22,8 @@ var viewBarWidth = 150;
 var viewBarHeight = 50;
 var divideLineWidth = 1;
 var minBarLength = 5;
+var barThickness = 77;
+var iconSize = barThickness;
 
 // GLOBAL PADDINGS
 var padding = 100;
@@ -40,7 +43,7 @@ var AllTeamNames = ["Adelaide Thunderbirds", "Melbourne Vixens", "Queensland Fir
 
 // Variable Page data
 var view = "Overall";
-var region = "NZ";
+var region = "ALL";
 var year = 2013;
 var seasonPart = "Both";
 
@@ -59,6 +62,11 @@ load();
 
 //
 function load(){
+	if (region==="ALL"){
+		svgHeight = 1200;
+	} else {
+		svgHeight = 800;
+	}
 	if (view === "Overall"){
 		doPage();
 	} else {
@@ -68,7 +76,6 @@ function load(){
 
 // Overall View
 function doPage () {
-	svgHeight = 800;
 	getNewSVG(svgWidth, svgHeight);
 	clearSVG();
 	d3.csv('data/2008-Table1.csv', function (e1, data2008){
@@ -157,11 +164,11 @@ function drawGraph (gameData) {
 	// === Start of doing the actual graph ===
 	
 	var winColour = colorPink;
-	var drawColour = colorBlack;
+	var drawColour = colorPurple;
 	var lossColour = colorLightBlue;
 	
 	var numDivisions = teamData.length+1;
-	var barThickness = (graphHeight-barGap*numDivisions)/teamData.length;
+//	var barThickness = (graphHeight-barGap*numDivisions)/teamData.length;
 	
 	// Find out how many games were played by the team with most games
 	var maxGamesPlayed = -1;
@@ -172,10 +179,11 @@ function drawGraph (gameData) {
 	}
 	
 	// Draw each team
-	var iconSize = 200;
-	if (barThickness < iconSize){
-		iconSize = barThickness;
-	}
+//	var iconSize = 200;
+//	if (barThickness < iconSize){
+//		iconSize = barThickness;
+//	}
+//	console.log(barThickness);
 	for (var i = 0; i < teamData.length; i++){
 		var barCentreY = (i+1) * (barGap+barThickness) - barThickness/2;
 		
@@ -185,7 +193,7 @@ function drawGraph (gameData) {
 		if (teamData[i].played > 0){
 			// Bar lengths
 			var barLength = teamData[i].played/maxGamesPlayed * graphWidth - iconSize;
-			console.log("Total bar length = " + barLength);
+			//console.log("Total bar length = " + barLength);
 			var winLength = barLength * (teamData[i].won/teamData[i].played);
 			var drawLength = barLength * (teamData[i].drew/teamData[i].played);
 			var lossLength = barLength - winLength - drawLength;
@@ -209,16 +217,12 @@ function drawGraph (gameData) {
 	var keySize = textSize;
 	var x = iconSize;
 	var textX = x + textSize+textPadding;
-	drawRect (x, y, keySize, keySize, winColour, colorBlack);
-	drawText (textX, y+textSize-textPadding, textSize, align, textColor, "Wins");
-	x += graphWidth/6;
-	textX = x + textSize+textPadding;
-	drawRect (x, y, keySize, keySize, drawColour, colorBlack);
-	drawText (textX, y+textSize-textPadding, textSize, align, textColor, "Draws");
-	x += graphWidth/6;
-	textX = x + textSize+textPadding;
-	drawRect (x, y, keySize, keySize, lossColour, colorBlack);
-	drawText (textX, y+textSize-textPadding, textSize, align, textColor, "Losses");
+	var keyCol = [winColour, drawColour, lossColour];
+	var keyText = ["Wins", "Draws", "Losses"];
+	for (var i=0; i < keyCol.length; i++){
+		drawRect (iconSize+i*graphWidth/6, y, keySize, keySize, keyCol[i], colorBlack);
+		drawText (iconSize+i*graphWidth/6+ textSize+textPadding, y+textSize-textPadding, textSize, align, textColor, keyText[i]);
+	}
 	
 	// === End of doing the actual graph ===
 	
@@ -417,7 +421,7 @@ function drawRightTri ()  {
 
 // Draws the banner displaying the season
 function drawBanner (year) {
-	return drawAnImage(arrowSize, svgHeight - arrowSize-barPadding, svgWidth-arrowSize*2, arrowSize, "../Resources/banners/banner_"+year+".png" );
+	return drawAnImage(arrowSize, svgHeight - arrowSize*1.5-barPadding, svgWidth-arrowSize*2, arrowSize*2, "../Resources/banners/banner_"+year+".png" );
 }
 
 // Draws and returns an svg image
@@ -438,36 +442,33 @@ function drawViewChange (x, y, colorBackround, colorText) {
 			if(view === "Overall"){
 				d3.event.stopPropagation();
 				view = "Per Season";
-				perSeason ();
 			} else {
 				d3.event.stopPropagation();
 				view = "Overall";
-				doPage ();
 			}
+			load();
 		});
 	drawRect (x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorBackround, colorText)
 		.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
 				view = "Per Season";
-				perSeason ();
 			} else {
 				d3.event.stopPropagation();
 				view = "Overall";
-				doPage ();
 			}
+			load();
 		});
 	drawText (x+viewBarWidth/2, y+viewBarHeight/2+5, "20px", "middle", colorText, view)
 		.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
 				view = "Per Season";
-				perSeason ();
 			} else {
 				d3.event.stopPropagation();
 				view = "Overall";
-				doPage ();
 			}
+			load();
 		});
 }
 
@@ -510,27 +511,15 @@ function drawRegionChange (x, y, colorBackround, colorText) {
 			if(region === "NZ"){
 				d3.event.stopPropagation();
 				region = "AU";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			} else if (region === "AU"){
 				d3.event.stopPropagation();
 				region = "ALL";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			} else {
 				d3.event.stopPropagation();
 				region = "NZ";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			}
 		});
 	drawRect (x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorBackround, colorText)
@@ -538,27 +527,15 @@ function drawRegionChange (x, y, colorBackround, colorText) {
 			if(region === "NZ"){
 				d3.event.stopPropagation();
 				region = "AU";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			} else if (region === "AU"){
 				d3.event.stopPropagation();
 				region = "ALL";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			} else {
 				d3.event.stopPropagation();
 				region = "NZ";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			}
 		});
 	drawText (x+viewBarWidth/2, y+viewBarHeight/2+5, "20px", "middle", colorText, region)
@@ -566,27 +543,15 @@ function drawRegionChange (x, y, colorBackround, colorText) {
 			if(region === "NZ"){
 				d3.event.stopPropagation();
 				region = "AU";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			} else if (region === "AU"){
 				d3.event.stopPropagation();
 				region = "ALL";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			} else {
 				d3.event.stopPropagation();
 				region = "NZ";
-				if (view === "Overall"){
-					doPage ();
-				} else {
-					perSeason ();
-				}
+				load();
 			}
 		});
 }
