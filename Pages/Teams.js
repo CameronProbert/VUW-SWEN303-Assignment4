@@ -50,7 +50,7 @@ function doPage () {
 function perSeason (team) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 			if(error){return;}
-			svgHeight = 1700;
+			svgHeight = 1625;
 			svg = getNewSVG(svgWidth, svgHeight);
 			svgHeight = 1500;
 			clearSVG();
@@ -199,7 +199,7 @@ function overall(team){
 							clearSVG();
 							drawTitle (team);
 							drawViewChange (team, svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
-							svgHeight = 1200;
+							svgHeight = 1125;
 							svg.attr("height", svgHeight);
 							svgHeight = 1000;
 							

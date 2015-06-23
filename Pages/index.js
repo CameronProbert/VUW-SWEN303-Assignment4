@@ -32,7 +32,7 @@ doPage();
 function doPage () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
-		svgHeight = 650;
+		svgHeight = 575;
 		svg = getNewSVG(svgWidth, svgHeight);
 		svgHeight = 550;
 		clearSVG();

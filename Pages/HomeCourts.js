@@ -40,9 +40,6 @@ overall();
 function perSeason () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 			if(error){return;}
-			svgHeight = 1000;
-			svg = getNewSVG(svgWidth, svgHeight);
-			svgHeight = 900;
 			clearSVG();
 			//console.log (data);
 			
@@ -55,7 +52,7 @@ function perSeason () {
 }
 
 function drawSeason (teams) {
-	svgHeight = 1000;
+	svgHeight = 925;
 	svg = getNewSVG (svgWidth, svgHeight);
 	svgHeight = 900;
 	clearSVG();
@@ -101,9 +98,6 @@ function overall () {
 							if(e6){return;}
 							var years = [data2008, data2009, data2010, data2011, data2012, data2013]; 
 							clearSVG();
-							svgHeight = 900;
-							svg = getNewSVG (svgWidth, svgHeight);
-							svgHeight = 800;
 							var teams = populateTeams (years);
 							drawOverall (teams) ;
 							
@@ -117,7 +111,7 @@ function overall () {
 
 function drawOverall (teams) {
 	
-	svgHeight = 900;
+	svgHeight = 825;
 	svg = getNewSVG (svgWidth, svgHeight);
 	svgHeight = 800;
 	clearSVG();
