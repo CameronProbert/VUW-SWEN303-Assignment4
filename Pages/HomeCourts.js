@@ -386,25 +386,6 @@ function findIndexOfTeam (team) {
 	return -1;
 }
 
-function gameConcerningThisTeam (game, team) {
-	if(game['Home Team']===team || game['Away Team']===team){ 
-		return true;
-	}
-	return false;
-}
-
-function winOrLoss (game, team) {
-	var resH = game['Home Score']; // home score
-	var resA = game['Away Score']; // away score
-	if(resH>resA && game['Home Team'] === team){
-		return 1; // home team won and team was the home team
-	}
-	if (resH<resA && game['Away Team'] === team){
-		return 1;
-	}
-	return 0;
-}
-
 function drawABar (x, y, width, height, colorFill, colorStroke) {
 	return svg.append("rect")
 		.attr("x", x)
@@ -417,16 +398,6 @@ function drawABar (x, y, width, height, colorFill, colorStroke) {
 	
 }
 
-function drawLine (y) {
-	return svg.append("line")
-		.attr("x1", 0)
-		.attr("y1", y)
-		.attr("x2", svgWidth)
-		.attr("y2", y)
-		.attr("stroke", colorBlack)
-		.attr("stroke-width", 3);
-}
-
 function drawText (text, x, y, size, allign, color){
 	return svg.append("text")
         .text(text)
@@ -436,18 +407,6 @@ function drawText (text, x, y, size, allign, color){
         .attr("font-size", size+"px")
         .attr("fill", color)
         .attr("text-anchor", allign);
-}
-
-function drawTeamBanner (team, svg, x, y, width, height) {	
-	var image = drawImage ("../Resources/banners/banner_" + team + ".png", x, y, width, height);
-	image.on('click', function(){
-			d3.event.stopPropagation();
-			overall();
-	});
-}
-
-function drawlogo (team, i, x, y, width) {
-	var image = drawImage ("../Resources/logos/logo_" + team + ".png", x, y, width, width);
 }
 
 function getNewSVG (w, h) {
