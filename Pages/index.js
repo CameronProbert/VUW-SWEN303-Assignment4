@@ -32,7 +32,7 @@ doPage();
 function doPage () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 		if(error){return;}
-		svgHeight = 700;
+		svgHeight = 650;
 		svg = getNewSVG(svgWidth, svgHeight);
 		svgHeight = 550;
 		clearSVG();
@@ -72,7 +72,7 @@ function drawLeftTri ()  {
 		.attr("xlink:href", function(d){
 			return "../Resources/arrows/LeftArrow.png";
 		})
-		.attr("x", 0)
+		.attr("x", barPadding)
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
@@ -89,7 +89,7 @@ function drawRightTri ()  {
 		.attr("xlink:href", function(d){
 			return "../Resources/arrows/RightArrow.png";
 		})
-		.attr("x", svgWidth - arrowSize )
+		.attr("x", svgWidth - arrowSize-barPadding )
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
