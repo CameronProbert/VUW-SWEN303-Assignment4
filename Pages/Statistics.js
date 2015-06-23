@@ -67,6 +67,14 @@ function load(){
 	} else {
 		svgHeight = 800;
 	}
+	if (view==="Overall"){
+		svgHeight-=102;
+	}
+	getNewSVG(svgWidth, svgHeight);
+	clearSVG();
+	if (view==="Overall"){
+		svgHeight+=102;
+	}
 	if (view === "Overall"){
 		doPage();
 	} else {
@@ -76,8 +84,6 @@ function load(){
 
 // Overall View
 function doPage () {
-	getNewSVG(svgWidth, svgHeight);
-	clearSVG();
 	d3.csv('data/2008-Table1.csv', function (e1, data2008){
 		if(e1){return;}
 		d3.csv('data/2009-Table1.csv', function (e2, data2009){
@@ -91,7 +97,7 @@ function doPage () {
 						d3.csv('data/2013-Table1.csv', function (e6, data2013){
 							if(e6){return;}
 							var allGames = [data2008, data2009, data2010, data2011, data2012, data2013]; 
-							clearSVG();
+							//clearSVG();
 							drawTitle ();
 							drawRegionChange (svgWidth-viewBarWidth*2-barPadding*2, barPadding+5, colorWhite, colorLightBlue);
 							drawViewChange (svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
@@ -108,8 +114,8 @@ function doPage () {
 function perSeason () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 			if(error){return;}
-			getNewSVG(svgWidth, svgHeight);
-			clearSVG();
+			//getNewSVG(svgWidth, svgHeight);
+			//clearSVG();
 			drawTitle ();
 			drawRegionChange (svgWidth-viewBarWidth*2-barPadding*2, barPadding+5, colorWhite, colorLightBlue);
 			drawViewChange (svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
@@ -168,7 +174,6 @@ function drawGraph (gameData) {
 	var lossColour = colorLightBlue;
 	
 	var numDivisions = teamData.length+1;
-//	var barThickness = (graphHeight-barGap*numDivisions)/teamData.length;
 	
 	// Find out how many games were played by the team with most games
 	var maxGamesPlayed = -1;
@@ -179,31 +184,26 @@ function drawGraph (gameData) {
 	}
 	
 	// Draw each team
-//	var iconSize = 200;
-//	if (barThickness < iconSize){
-//		iconSize = barThickness;
-//	}
-//	console.log(barThickness);
 	for (var i = 0; i < teamData.length; i++){
 		var barCentreY = (i+1) * (barGap+barThickness) - barThickness/2;
 		
 		// Draw logo
-		drawAnImage (0, graphY+barCentreY-iconSize/2, iconSize, iconSize, "../Resources/logos/logo_"+teamData[i].name+".png");
+		drawAnImage (barPadding, graphY+barCentreY-iconSize/2, iconSize, iconSize, "../Resources/logos/logo_"+teamData[i].name+".png");
 		
 		if (teamData[i].played > 0){
 			// Bar lengths
-			var barLength = teamData[i].played/maxGamesPlayed * graphWidth - iconSize;
+			var barLength = teamData[i].played/maxGamesPlayed * graphWidth - iconSize - barPadding*2;
 			//console.log("Total bar length = " + barLength);
 			var winLength = barLength * (teamData[i].won/teamData[i].played);
 			var drawLength = barLength * (teamData[i].drew/teamData[i].played);
 			var lossLength = barLength - winLength - drawLength;
 			
 			// Draw win section of bar
-			drawRect (iconSize, graphY+barCentreY-barThickness/2, winLength, barThickness, winColour, colorWhite);
+			drawRect (iconSize+barPadding, graphY+barCentreY-barThickness/2, winLength, barThickness, winColour, colorWhite);
 			// Draw the draw section of bar
-			drawRect (iconSize+winLength, graphY+barCentreY-barThickness/2, drawLength, barThickness, drawColour, colorWhite);
+			drawRect (iconSize+barPadding+winLength, graphY+barCentreY-barThickness/2, drawLength, barThickness, drawColour, colorWhite);
 			// Draw loss section of bar
-			drawRect (iconSize+winLength+drawLength, graphY+barCentreY-barThickness/2, lossLength, barThickness, lossColour, colorWhite);
+			drawRect (iconSize+barPadding+winLength+drawLength, graphY+barCentreY-barThickness/2, lossLength, barThickness, lossColour, colorWhite);
 		
 		}
 	}
