@@ -4,7 +4,16 @@ var colorLightBlue = "rgb(0, 157, 221)";
 var colorWhite = "rgb(255, 255, 255)";
 var colorPink = "rgb(237, 0, 140)";
 var colorBlack = "rgb(0, 0, 0)";
-var colorTie = "rgb(0, 122,182)";
+var colorTie = "rgb(119, 78,181)";
+
+// GLOBAL PADDINGS
+var padding = 100;
+var barPadding = 20;
+var bottomPadding = 75;
+var topPadding = 50;
+var graphPadding = 50;
+var lilBar = 15;
+var bigPadding = 200;
 
 // GLOBAL SIZES
 var svgWidth = 1000;
@@ -16,22 +25,15 @@ var teamBannerHeight = 100;
 var logoWidth = 100;
 var viewBarWidth = 150;
 var viewBarHeight = 50;
-
-// GLOBAL PADDINGS
-var padding = 100;
-var barPadding = 20;
-var bottomPadding = 75;
-var topPadding = 50;
-var graphPadding = 50;
-var lilBar = 15;
-var bigPadding = 200;
+var transformX = svgWidth/4+padding-50;
+var transformY = padding*5;
 
 var view = "Overall";
 var selectedCourt = "";
 var svg = getNewSVG(svgWidth, svgHeight);
 
 var welcomeMessage = ["Home Court Performance", "You can click on a team to see more information", "about how well they play at their home courts"];
-var teamNames = ["Adelaide Thunderbirds", "Melbourne Vixens", "Queensland Firebirds", "New South Wales Swifts", "West Coast Fever", "Waikato Bay of Plenty Magic", "Northern Mystics", "Southern Steel", "Central Pulse", "Canterbury Tactix"];
+var teamNames = ["Adelaide Thunderbirds", "Melbourne Vixens", "West Coast Fever", "New South Wales Swifts", "Queensland Firebirds", "Waikato Bay of Plenty Magic", "Northern Mystics", "Southern Steel", "Central Pulse", "Canterbury Tactix"];
 var year = 2013;
 overall();
 
@@ -51,6 +53,8 @@ function perSeason () {
 }
 
 function drawSeason (teams) {
+	svgHeight = 900;
+	svg = getNewSVG (svgWidth, svgHeight);
 	clearSVG();
 	drawGraph (teams);
 	drawHeading ();
@@ -108,6 +112,9 @@ function overall () {
 }
 
 function drawOverall (teams) {
+	
+	svgHeight = 800;
+	svg = getNewSVG (svgWidth, svgHeight);
 	clearSVG();
 	drawHeading ();
 	drawViewChange (svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
@@ -140,9 +147,6 @@ function drawGraph (teams) {
 	var convertToRad = Math.PI / 180;
 	var endAngle = 0;
 	var total = findTotal (teams);
-	console.log (total);
-	var transformX = svgWidth/4+padding;
-	var transformY = padding*5;
 	
 	for (var i = 0; i < teams.length; i++) {
         var proportion = teams[i].matches.length / total * 360;// in degrees
@@ -151,23 +155,27 @@ function drawGraph (teams) {
         if (teams[i].name===selectedCourt) {
 			var tempAngle = endAngle;
 			var wins = calcWins (teams[i]);
-			console.log(wins);
 			for(var w=0; w<wins.length; w++){
+				var flush = 0.1;
 				var proTemp = wins[w]/ teams[i].matches.length*proportion;
 				if(wins[w]!==0){
 					if (w===0)color = colorPink;
 					if (w===1)color = colorTie;
-					if (w===2)color = colorLightBlue;
+					if (w===2){
+						color = colorLightBlue;
+						flush = 1;
+					}
 					var arc = d3.svg.arc()
-						.innerRadius(140)
+						.innerRadius(outerRadius+1)
 						.outerRadius(300)
 						.startAngle(tempAngle) //converting from degs to radians
-						.endAngle(tempAngle + (proTemp - 1) * convertToRad); //just radians
-					tempAngle += proTemp * convertToRad;
+						.endAngle(tempAngle + (proTemp - flush) * convertToRad); //just radians
+					tempAngle += (proTemp) * convertToRad;
 					drawArc (teams, teams[i], arc, colorWhite, color, transformX, transformY) ;		
 				}				
 			}
             color = colorPink;
+			drawTeamInfo (wins, teams[i]);
         }
         else {
             outerRadius = 260;
@@ -185,6 +193,124 @@ function drawGraph (teams) {
 		
         }
 	
+	if(selectedCourt === ""){drawGenericInfo (teams);}
+	
+}
+
+function drawTeamInfo (wins, team) {
+	// draw stuff in the middle
+	var winPos = transformY-25;
+	var tiePos = transformY;
+	var lossPos = transformY+25;
+	if(wins[1]!== 0) {
+		winPos -=25;
+		lossPos +=25;
+	}
+	else if (wins[1] === 0 && wins[2]===0) winPos = transformY;
+	else if (wins[1] === 0 && wins[0]===0) lossPos = transformY;
+	if(wins[0]!==0) drawText ("Home Wins : "+wins[0], transformX, winPos, 20, "middle", colorPink);
+	if(wins[1]!==0) drawText ("Home Ties : "+wins[1], transformX, tiePos, 20, "middle", colorTie);
+	if(wins[2]!==0) drawText ("Home Losses : "+wins[2], transformX, lossPos, 20, "middle", colorLightBlue);
+	
+	var courts = workCourts (team);
+	
+	// draw side bar
+	courts.sort (function(a, b){
+		return b.count-a.count;
+	});
+	
+	var xPad = 390;
+	var yPad = 400;
+	var yHeader = 75;
+	
+	var textY = 425;
+	var textX = 375;
+	var textPad = 50;
+	
+	drawABar (svgWidth-xPad, transformY-yPad/2, xPad, yPad, colorLightBlue, colorWhite);
+	drawABar (svgWidth-xPad+barPadding/2, transformY-yPad/2+barPadding/2, xPad-barPadding, yHeader, colorWhite, colorWhite);
+	drawText ("Top Played Courts", svgWidth-xPad+barPadding/2+(xPad-barPadding)/2, transformY-yPad/2+barPadding/2 + (yHeader+25)/2, 35, "middle", colorLightBlue);
+	drawText ("Court", svgWidth-textX, textY, 20, "start", colorWhite);
+	drawText ("#Games", svgWidth-barPadding, textY, 20, "end", colorWhite);
+	
+	var maxCourts = 5;
+	if (courts.length<maxCourts) maxCourts = courts.length;
+	for (var i=0; i<maxCourts; i++){
+		var name = courts[i].name;
+		var res = name.split(" and ");
+		name = res[0];
+		if (res.length>1){name += " & " + res[1];}
+		drawText (name + "  ", svgWidth-textX, textY+textPad+i*textPad, 15, "start", colorWhite);
+		drawText (courts[i].count, svgWidth-barPadding, textY+textPad+i*textPad, 15, "end", colorWhite);
+	}
+	
+	
+}
+
+function drawGenericInfo (teams) {
+	var courts = [];
+	for(var i=0; i<teams.length; i++){
+		var c = workCourts(teams[i]);
+		for (var j=0; j<c.length; j++){
+			courts[courts.length] = c[j];
+		}
+	}
+	// draw side bar
+	courts.sort (function(a, b){
+		return b.count-a.count;
+	});
+	
+	var xPad = 390;
+	var yPad = 400;
+	var yHeader = 75;
+	
+	var textY = 425;
+	var textX = 375;
+	var textPad = 50;
+	
+	drawABar (svgWidth-xPad, transformY-yPad/2, xPad, yPad, colorLightBlue, colorWhite);
+	drawABar (svgWidth-xPad+barPadding/2, transformY-yPad/2+barPadding/2, xPad-barPadding, yHeader, colorWhite, colorWhite);
+	drawText ("Top Played Courts", svgWidth-xPad+barPadding/2+(xPad-barPadding)/2, transformY-yPad/2+barPadding/2 + (yHeader+25)/2, 35, "middle", colorLightBlue);
+	drawText ("Court", svgWidth-textX, textY, 20, "start", colorWhite);
+	drawText ("#Games", svgWidth-barPadding, textY, 20, "end", colorWhite);
+	
+	var maxCourts = 5;
+	if (courts.length<maxCourts) maxCourts = courts.length;
+	for (var i=0; i<maxCourts; i++){
+		var name = courts[i].name;
+		var res = name.split(" and ");
+		name = res[0];
+		if (res.length>1){name += " & " + res[1];}
+		drawText (name + "  ", svgWidth-textX, textY+textPad+i*textPad, 15, "start", colorWhite);
+		drawText (courts[i].count, svgWidth-barPadding, textY+textPad+i*textPad, 15, "end", colorWhite);
+	}
+}
+
+function workCourts (team) {
+	var courts = [];
+	
+	for (var i=0; i< team.matches.length; i++){
+		var court = findCourt (courts, team.matches[i]);
+		if (court==="not found"){
+			courts[courts.length] = {
+				name : team.matches[i].Venue,
+				count : 1			
+			}
+		} else {
+			court.count ++;		
+		}
+	
+	}
+	return courts;
+}
+
+function findCourt (courts, match) {
+	for (var i=0; i<courts.length; i++){
+		if (courts[i].name === match.Venue ) {
+			return courts[i];
+		}
+	}	
+	return "not found";
 }
 
 function calcWins (team) {
