@@ -50,13 +50,15 @@ function doPage () {
 function perSeason (team) {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 			if(error){return;}
-			svgHeight = 1500;
+			svgHeight = 1700;
 			svg = getNewSVG(svgWidth, svgHeight);
+			svgHeight = 1500;
 			clearSVG();
 			drawTitle (team);
 			drawViewChange (team, svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
 			drawRoundsPerSeason (team, data);
 			
+			drawBackButton();
 			
 			drawBanner ();
 			if(year===2013){
@@ -197,10 +199,11 @@ function overall(team){
 							clearSVG();
 							drawTitle (team);
 							drawViewChange (team, svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
-							svgHeight = 1100;
+							svgHeight = 1200;
 							svg.attr("height", svgHeight);
-							drawBackButton ();
 							svgHeight = 1000;
+							
+							drawBackButton ();
 							drawStats(years, team);	
 						});	
 					});
@@ -293,7 +296,7 @@ function drawGraph (rounds, wonGames, winRate, team) {
 		}else{
 			wR=0;
 		}
-		drawBar (i, wR, winRate, lowestWR, highestWR, heightMin, heightMax);
+		drawBars (i, wR, winRate, lowestWR, highestWR, heightMin, heightMax);
 	}
 	drawLine(heightMax-graphPadding);
 	
@@ -337,7 +340,7 @@ function drawLine (y) {
 		.attr("stroke-width", 3);
 }
 
-function drawBar (i, wR, winRate, lowestWR, highestWR, heightMin, heightMax ) {
+function drawBars (i, wR, winRate, lowestWR, highestWR, heightMin, heightMax ) {
 	var graphPadding = 50;
 	var scale = d3.scale.linear()
 		.domain([lowestWR, highestWR])
@@ -395,66 +398,37 @@ function getLowestandHighestWR(rounds){
 }
 
 function drawASTeams () {
-	svg.selectAll("image")
-		.data(AUTeams)
-		.enter()
-		.append("svg:image")
-		.attr("xlink:href", function(d){
-			return "../Resources/logos/logo_" + d + ".png";
-		})
-		.attr("x", svgWidth/2)
-		.attr("y", function(d, i){
-			return bigPadding + i*(teamBannerHeight+barPadding);
-		})
-		.attr("width", logoWidth)
-		.attr("height", teamBannerHeight)
-		.on('click', function(d){
+	for (var i=0; i<AUTeams.length; i++){
+		var image = drawAnImage (svgWidth/2, bigPadding + i*(teamBannerHeight+barPadding), logoWidth, teamBannerHeight, "../Resources/logos/logo_" + AUTeams[i] + ".png");
+		addClick (AUTeams[i], image);
+	}
+}
+
+function addClick (team, image){
+	image.on('click', function(){
 			d3.event.stopPropagation();
-			overall(d);
-		});
+			overall(team);
+	});
 }
 
 function drawASBanners () {
 	for(var i=0; i<AUTeams.length; i++){
-		drawTeamBanner(AUTeams[i], i, barPadding+logoWidth+svgWidth/2);
+		var image = drawAnImage (barPadding+logoWidth+svgWidth/2, bigPadding+i*(teamBannerHeight+barPadding), teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + AUTeams[i] + ".png");
+		addClick (AUTeams[i], image );
 	}
-}
-
-function drawTeamBanner (team, i, x) {	
-	svg.append("svg:image")
-		.attr("xlink:href", "../Resources/banners/banner_" + team + ".png")
-		.attr("x", x)
-		.attr("y", bigPadding+i*(teamBannerHeight+barPadding))
-		.attr("width", teamBannerWidth)
-		.attr("height", teamBannerHeight)
-		.on('click', function(){
-			d3.event.stopPropagation();
-			overall(team);
-		});
 }
 
 function drawNZTeams () {
 	for(var i=0; i<NZTeams.length; i++){
-		drawlogo (NZTeams[i], i);
+		var logo = drawAnImage (0, bigPadding+i*(teamBannerHeight+barPadding), logoWidth, teamBannerHeight,  "../Resources/logos/logo_" + NZTeams[i] + ".png") ;
+		addClick (NZTeams[i], logo);
 	}
-}
-
-function drawlogo (team, i) {
-	svg.append("svg:image")
-		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
-		.attr("x", 0)
-		.attr("y", bigPadding+i*(teamBannerHeight+barPadding))
-		.attr("width", logoWidth)
-		.attr("height", teamBannerHeight)
-		.on('click', function(){
-			d3.event.stopPropagation();
-			overall(team);
-		});
 }
 
 function drawNZBanners () {
 	for(var i=0; i<NZTeams.length; i++){
-		drawTeamBanner (NZTeams[i], i, barPadding+logoWidth );
+		var image = drawAnImage (barPadding+logoWidth, bigPadding+i*(teamBannerHeight+barPadding), teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + NZTeams[i] + ".png");
+		addClick (NZTeams[i], image );
 	}
 }
 
@@ -471,16 +445,8 @@ function clearSVG () {
 }
 
 function drawLeftTri (team)  {
-	var tip = "Previous Year";
-	svg.append("svg:image")
-		.attr("xlink:href", function(d){
-			return "../Resources/arrows/LeftArrow.png";
-		})
-		.attr("x", 0)
-        .attr("y", svgHeight - arrowSize-barPadding)
-        .attr("width", arrowSize)
-        .attr("height", arrowSize)
-		.on('click', function(){
+	var tri = drawAnImage (barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/LeftArrow.png" );
+	tri.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
 			perSeason(team);
@@ -488,16 +454,8 @@ function drawLeftTri (team)  {
 }
 
 function drawRightTri (team)  {
-	var tip = "Next Year";
-	svg.append("svg:image")
-		.attr("xlink:href", function(d){
-			return "../Resources/arrows/RightArrow.png";
-		})
-		.attr("x", svgWidth - arrowSize-barPadding )
-        .attr("y", svgHeight - arrowSize-barPadding)
-        .attr("width", arrowSize)
-        .attr("height", arrowSize)
-		.on('click', function(){
+	var tri = drawAnImage(svgWidth - arrowSize-barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/RightArrow.png")
+	tri.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;
 			perSeason(team);
@@ -518,7 +476,7 @@ function drawAnImage (x, y, width, height, name){ // no on click function tho
 }
 
 function drawViewChange (team, x, y, colorBackround, colorText) {
-	var rect1 = drawABar (x, y, viewBarWidth, viewBarHeight, colorBackround, colorWhite);
+	var rect1 = drawABar (x, y, viewBarWidth, viewBarHeight, colorBackround, colorBackround);
 	rect1.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
@@ -530,15 +488,8 @@ function drawViewChange (team, x, y, colorBackround, colorText) {
 				overall (team);
 			}
 		});
-	svg.append("rect")
-		.attr("x", x+2.5)
-		.attr("y", y+2.5)
-		.attr("width", viewBarWidth-5)
-		.attr("height", viewBarHeight-5)
-		.attr("fill", colorBackround)
-		.attr("stroke-width", 1)
-		.attr("stroke", colorText)
-		.on("click", function(f){
+	var rect2 = drawABar (x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorBackround, colorText);
+	rect2.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
 				view = "Per Season";
@@ -549,15 +500,8 @@ function drawViewChange (team, x, y, colorBackround, colorText) {
 				overall (team);
 			}
 		});
-	svg.append("text")
-        .text(view)
-        .attr("x", x+viewBarWidth/2) 
-        .attr("y", y+viewBarHeight/2+5)
-        .attr("font-family", "Verdana")
-        .attr("font-size", "20px")
-        .attr("fill", colorText)
-        .attr("text-anchor", "middle")
-		.on("click", function(f){
+	var text = drawText(view, x+viewBarWidth/2, y+viewBarHeight/2+5, 20, "middle", colorText)
+	text.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
 				view = "Per Season";
@@ -571,7 +515,7 @@ function drawViewChange (team, x, y, colorBackround, colorText) {
 }
 
 function drawBackButton () {
-	var y = 1050;
+	var y = svgHeight+50;
 	var width = 75;
 	drawText ("Go back to main teams page", svgWidth/2, y-40, 20, "middle", colorBlack);
 	var image = drawAnImage (svgWidth/2-width/2, y-20, width, width, "../Resources/arrows/BackArrow.png");

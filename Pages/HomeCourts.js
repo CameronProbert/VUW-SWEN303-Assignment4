@@ -17,7 +17,7 @@ var bigPadding = 200;
 
 // GLOBAL SIZES
 var svgWidth = 1000;
-var svgHeight = 1000;
+var svgHeight = 900;
 var barWidth = 100;
 var arrowSize = 50;
 var teamBannerWidth = 350;
@@ -40,7 +40,9 @@ overall();
 function perSeason () {
 	d3.csv('data/'+year+'-Table1.csv', function (error, data){
 			if(error){return;}
+			svgHeight = 1000;
 			svg = getNewSVG(svgWidth, svgHeight);
+			svgHeight = 900;
 			clearSVG();
 			//console.log (data);
 			
@@ -53,8 +55,9 @@ function perSeason () {
 }
 
 function drawSeason (teams) {
-	svgHeight = 900;
+	svgHeight = 1000;
 	svg = getNewSVG (svgWidth, svgHeight);
+	svgHeight = 900;
 	clearSVG();
 	drawGraph (teams);
 	drawHeading ();
@@ -98,8 +101,9 @@ function overall () {
 							if(e6){return;}
 							var years = [data2008, data2009, data2010, data2011, data2012, data2013]; 
 							clearSVG();
+							svgHeight = 900;
 							svg = getNewSVG (svgWidth, svgHeight);
-							
+							svgHeight = 800;
 							var teams = populateTeams (years);
 							drawOverall (teams) ;
 							
@@ -113,8 +117,9 @@ function overall () {
 
 function drawOverall (teams) {
 	
-	svgHeight = 800;
+	svgHeight = 900;
 	svg = getNewSVG (svgWidth, svgHeight);
+	svgHeight = 800;
 	clearSVG();
 	drawHeading ();
 	drawViewChange (svgWidth-viewBarWidth-barPadding, barPadding+5, colorWhite, colorLightBlue);
@@ -227,11 +232,11 @@ function drawTeamInfo (wins, team) {
 	var textX = 375;
 	var textPad = 50;
 	
-	drawABar (svgWidth-xPad, transformY-yPad/2, xPad, yPad, colorLightBlue, colorWhite);
-	drawABar (svgWidth-xPad+barPadding/2, transformY-yPad/2+barPadding/2, xPad-barPadding, yHeader, colorWhite, colorWhite);
-	drawText ("Top Played Courts", svgWidth-xPad+barPadding/2+(xPad-barPadding)/2, transformY-yPad/2+barPadding/2 + (yHeader+25)/2, 35, "middle", colorLightBlue);
+	drawABar (svgWidth-xPad, transformY-yPad/2, xPad-barPadding, yPad, colorLightBlue, colorWhite);
+	drawABar (svgWidth-xPad+barPadding/2, transformY-yPad/2+barPadding/2, xPad-barPadding*2, yHeader, colorWhite, colorWhite);
+	drawText ("Top Played Courts", svgWidth-xPad+barPadding/2+(xPad-barPadding*2)/2, transformY-yPad/2+barPadding/2 + (yHeader+25)/2, 35, "middle", colorLightBlue);
 	drawText ("Court", svgWidth-textX, textY, 20, "start", colorWhite);
-	drawText ("#Games", svgWidth-barPadding, textY, 20, "end", colorWhite);
+	drawText ("#Games", svgWidth-barPadding*2, textY, 20, "end", colorWhite);
 	
 	var maxCourts = 5;
 	if (courts.length<maxCourts) maxCourts = courts.length;
@@ -241,7 +246,7 @@ function drawTeamInfo (wins, team) {
 		name = res[0];
 		if (res.length>1){name += " & " + res[1];}
 		drawText (name + "  ", svgWidth-textX, textY+textPad+i*textPad, 15, "start", colorWhite);
-		drawText (courts[i].count, svgWidth-barPadding, textY+textPad+i*textPad, 15, "end", colorWhite);
+		drawText (courts[i].count, svgWidth-barPadding*2, textY+textPad+i*textPad, 15, "end", colorWhite);
 	}
 	
 	
@@ -268,11 +273,11 @@ function drawGenericInfo (teams) {
 	var textX = 375;
 	var textPad = 50;
 	
-	drawABar (svgWidth-xPad, transformY-yPad/2, xPad, yPad, colorLightBlue, colorWhite);
-	drawABar (svgWidth-xPad+barPadding/2, transformY-yPad/2+barPadding/2, xPad-barPadding, yHeader, colorWhite, colorWhite);
-	drawText ("Top Played Courts", svgWidth-xPad+barPadding/2+(xPad-barPadding)/2, transformY-yPad/2+barPadding/2 + (yHeader+25)/2, 35, "middle", colorLightBlue);
+	drawABar (svgWidth-xPad, transformY-yPad/2, xPad-barPadding, yPad, colorLightBlue, colorWhite);
+	drawABar (svgWidth-xPad+barPadding/2, transformY-yPad/2+barPadding/2, xPad-barPadding*2, yHeader, colorWhite, colorWhite);
+	drawText ("Top Played Courts", svgWidth-xPad+barPadding/2+(xPad-barPadding*2)/2, transformY-yPad/2+barPadding/2 + (yHeader+25)/2, 35, "middle", colorLightBlue);
 	drawText ("Court", svgWidth-textX, textY, 20, "start", colorWhite);
-	drawText ("#Games", svgWidth-barPadding, textY, 20, "end", colorWhite);
+	drawText ("#Games", svgWidth-barPadding*2, textY, 20, "end", colorWhite);
 	
 	var maxCourts = 5;
 	if (courts.length<maxCourts) maxCourts = courts.length;
@@ -282,7 +287,7 @@ function drawGenericInfo (teams) {
 		name = res[0];
 		if (res.length>1){name += " & " + res[1];}
 		drawText (name + "  ", svgWidth-textX, textY+textPad+i*textPad, 15, "start", colorWhite);
-		drawText (courts[i].count, svgWidth-barPadding, textY+textPad+i*textPad, 15, "end", colorWhite);
+		drawText (courts[i].count, svgWidth-barPadding*2, textY+textPad+i*textPad, 15, "end", colorWhite);
 	}
 }
 
@@ -423,7 +428,7 @@ function clearSVG () {
 
 function drawLeftTri ()  {
 	var tip = "Previous Year";
-	var image = drawImage ("../Resources/arrows/LeftArrow.png", 0, svgHeight - arrowSize-barPadding, arrowSize, arrowSize);
+	var image = drawImage ("../Resources/arrows/LeftArrow.png", barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize);
 	image.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
