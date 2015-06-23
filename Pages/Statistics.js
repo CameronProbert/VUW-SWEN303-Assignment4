@@ -400,7 +400,7 @@ function clearSVG () {
 // Draws the previous season triangle
 function drawLeftTri ()  {
 	var tip = "Previous Year";
-	drawAnImage (0, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/LeftArrow.png")
+	drawAnImage (barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/LeftArrow.png")
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
