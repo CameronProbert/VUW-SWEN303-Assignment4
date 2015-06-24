@@ -102,7 +102,7 @@ function drawRoundsPerSeason (team, data) {
 		drawOtherTeamLogo (x2+width2, y, height, otherTeamName)
 		
 		// Draw Round Number
-		drawText (matches[i]['Round'], 0, y+height*2/3, 20, "start", colorBlack);
+		drawText (matches[i]['Round'], barPadding+5, y+height*2/3, 20, "middle", colorBlack);
 		
 		// Draw score
 		drawText (score1, x1+width1-barPadding, y+height*2/3, 20, "end", colorWhite);
@@ -272,8 +272,8 @@ function drawGraph (rounds, wonGames, winRate, team) {
 	
 	// Text
 	winRate = Number(winRate).toFixed(2);
-	drawText("Number of games won : "+wonGames, logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight/2-15, 30, "left", colorBlack);
-	drawText("Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding, topPadding+padding+teamBannerHeight-15, 30, "left", colorBlack);
+	drawText("Number of games won : "+wonGames, logoWidth+teamBannerWidth+barPadding*2, topPadding+padding+teamBannerHeight/2-15, 30, "left", colorBlack);
+	drawText("Win rate : "+winRate+"%", logoWidth+teamBannerWidth+barPadding*2, topPadding+padding+teamBannerHeight-15, 30, "left", colorBlack);
 	//Border
 	var heightMin = topPadding+padding*2+barPadding+teamBannerHeight;
 	var heightMax = svgHeight-(barPadding*2);
@@ -420,14 +420,14 @@ function drawASBanners () {
 
 function drawNZTeams () {
 	for(var i=0; i<NZTeams.length; i++){
-		var logo = drawAnImage (0, bigPadding+i*(teamBannerHeight+barPadding), logoWidth, teamBannerHeight,  "../Resources/logos/logo_" + NZTeams[i] + ".png") ;
+		var logo = drawAnImage (barPadding, bigPadding+i*(teamBannerHeight+barPadding), logoWidth, teamBannerHeight,  "../Resources/logos/logo_" + NZTeams[i] + ".png") ;
 		addClick (NZTeams[i], logo);
 	}
 }
 
 function drawNZBanners () {
 	for(var i=0; i<NZTeams.length; i++){
-		var image = drawAnImage (barPadding+logoWidth, bigPadding+i*(teamBannerHeight+barPadding), teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + NZTeams[i] + ".png");
+		var image = drawAnImage (barPadding*2+logoWidth, bigPadding+i*(teamBannerHeight+barPadding), teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + NZTeams[i] + ".png");
 		addClick (NZTeams[i], image );
 	}
 }
@@ -533,9 +533,9 @@ function drawTitle (team) {
 	if(team === "Waikato Bay of Plenty Magic"){textSize=50;}
 	drawText(team, barPadding, topPadding+barPadding, textSize, "left", colorWhite);
 	// Logo
-	drawAnImage(0, topPadding+padding, logoWidth, teamBannerHeight, "../Resources/logos/logo_" + team + ".png");
+	drawAnImage(barPadding, topPadding+padding, logoWidth, teamBannerHeight, "../Resources/logos/logo_" + team + ".png");
 	// Banner
-	drawAnImage(logoWidth, topPadding+padding, teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + team + ".png");
+	drawAnImage(logoWidth+barPadding, topPadding+padding, teamBannerWidth, teamBannerHeight, "../Resources/banners/banner_" + team + ".png");
 }
 
 function drawHeading () {
