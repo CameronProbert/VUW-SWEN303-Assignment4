@@ -220,7 +220,7 @@ function drawGraph (gameData) {
 	var keyCol = [winColour, drawColour, lossColour];
 	var keyText = ["Wins", "Draws", "Losses"];
 	for (var i=0; i < keyCol.length; i++){
-		drawRect (iconSize+i*graphWidth/6, y, keySize, keySize, keyCol[i], colorBlack);
+		drawRect (iconSize+i*graphWidth/6, y, keySize, keySize, keyCol[i], colorWhite);
 		drawText (iconSize+i*graphWidth/6+ textSize+textPadding, y+textSize-textPadding, textSize, align, textColor, keyText[i]);
 	}
 	
