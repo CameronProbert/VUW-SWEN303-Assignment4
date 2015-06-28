@@ -203,6 +203,7 @@ function drawSelectedRivalry(count, rivalries, allData){
 	
 	// Display team on left
 	drawlogo (100, count*(iconSize+rivalryPadding)+graphTop, iconSize, rivalries[count].team1)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -210,6 +211,7 @@ function drawSelectedRivalry(count, rivalries, allData){
 	
 	// Display team on right
 	drawlogo (800, count*(iconSize+rivalryPadding)+graphTop, iconSize, rivalries[count].team2)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -221,6 +223,7 @@ function drawSelectedRivalry(count, rivalries, allData){
 
 	// Display team banners for left teams
 	drawTeamBanner (210, count*(iconSize+rivalryPadding)+graphTop, bannerWidth, bannerHeight, rivalries[count].team1)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -228,6 +231,7 @@ function drawSelectedRivalry(count, rivalries, allData){
 
 	// Display team banners for right teams
 	drawTeamBanner (800-bannerWidth-bannerPadding, count*(iconSize+rivalryPadding)+graphTop, bannerWidth, bannerHeight, rivalries[count].team2)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -236,6 +240,7 @@ function drawSelectedRivalry(count, rivalries, allData){
 	// Display versus symbol in the centre of each banner
 	var vsSize = 100;
 	drawAnImage (1/2*svgWidth-1/2*vsSize, count*(bannerHeight+rivalryPadding)+graphTop, vsSize, vsSize, "../Resources/banners/banner_VS.png")
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -262,6 +267,7 @@ function drawUnselectedRivalry(count, selectedRivalry, rivalries){
 		})
 		.attr("width",iconSize)
 		.attr("height",iconSize)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -278,6 +284,7 @@ function drawUnselectedRivalry(count, selectedRivalry, rivalries){
 		})
 		.attr("width",iconSize)
 		.attr("height",iconSize)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -298,6 +305,7 @@ function drawUnselectedRivalry(count, selectedRivalry, rivalries){
 		})
 		.attr("width",bannerWidth)
 		.attr("height",bannerHeight)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -314,6 +322,7 @@ function drawUnselectedRivalry(count, selectedRivalry, rivalries){
 		})
 		.attr("width",bannerWidth)
 		.attr("height",bannerHeight)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();
@@ -331,6 +340,7 @@ function drawUnselectedRivalry(count, selectedRivalry, rivalries){
 		})
 		.attr("width",vsSize)
 		.attr("height",vsSize)
+		.attr("cursor", "pointer")
 		.on("click",function(){
 			selectRivalry(count);
 			doPage();

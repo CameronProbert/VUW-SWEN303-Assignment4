@@ -76,6 +76,7 @@ function drawLeftTri ()  {
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
+		.attr("cursor", "pointer")
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
@@ -93,6 +94,7 @@ function drawRightTri ()  {
         .attr("y", svgHeight - arrowSize)
         .attr("width", arrowSize)
         .attr("height", arrowSize)
+		.attr("cursor", "pointer")
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;

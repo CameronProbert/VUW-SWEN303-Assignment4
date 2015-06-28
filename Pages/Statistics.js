@@ -401,6 +401,7 @@ function clearSVG () {
 function drawLeftTri ()  {
 	var tip = "Previous Year";
 	drawAnImage (barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/LeftArrow.png")
+		.attr("cursor", "pointer")
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year - 1;
@@ -412,6 +413,7 @@ function drawLeftTri ()  {
 function drawRightTri ()  {
 	var tip = "Next Year";
 	drawAnImage (svgWidth - arrowSize-barPadding, svgHeight - arrowSize-barPadding, arrowSize, arrowSize, "../Resources/arrows/RightArrow.png")
+		.attr("cursor", "pointer")
 		.on('click', function(){
 			d3.event.stopPropagation();
 			year = year + 1;
@@ -438,6 +440,7 @@ function drawAnImage (x, y, width, height, name){
 // Overall/Per season view switcher
 function drawViewChange (x, y, colorBackround, colorText) {
 	drawRect (x, y, viewBarWidth, viewBarHeight, colorBackround, colorWhite)
+		.attr("cursor", "pointer")
 		.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
@@ -449,6 +452,7 @@ function drawViewChange (x, y, colorBackround, colorText) {
 			load();
 		});
 	drawRect (x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorBackround, colorText)
+		.attr("cursor", "pointer")
 		.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
@@ -460,6 +464,7 @@ function drawViewChange (x, y, colorBackround, colorText) {
 			load();
 		});
 	drawText (x+viewBarWidth/2, y+viewBarHeight/2+5, "20px", "middle", colorText, view)
+		.attr("cursor", "pointer")
 		.on("click", function(f){
 			if(view === "Overall"){
 				d3.event.stopPropagation();
@@ -481,32 +486,39 @@ function drawSeasonButton(x, y, width, height, type){
 	
 	if (seasonPart !== type){
 		drawRect (x, y, width, height, unselectedColour, colorWhite)
+			.attr("cursor", "pointer")
 			.on("click", function(){
 				d3.event.stopPropagation();
 				seasonPart = type;
 				load();
 			});
 			drawRect (x+2.5, y+2.5, width-5, height-5, unselectedColour, unselectedText)
-		.on("click", function(){
+			.attr("cursor", "pointer")
+			.on("click", function(){
 				d3.event.stopPropagation();
 				seasonPart = type;
 				load();
 		});
 		drawText (x+width/2, y+height/2+5, "20px", "middle", unselectedText, type)
+			.attr("cursor", "pointer")
 			.on("click", function(){
 				d3.event.stopPropagation();
 				seasonPart = type;
 				load();
 			});
 	} else {
-		drawRect (x, y, width, height, selectedColour, colorWhite);
-		drawRect (x+2.5, y+2.5, width-5, height-5, selectedColour, selectedText);
-		drawText (x+width/2, y+height/2+5, "20px", "middle", selectedText, type);
+		drawRect (x, y, width, height, selectedColour, colorWhite)
+			.attr("cursor", "pointer");
+		drawRect (x+2.5, y+2.5, width-5, height-5, selectedColour, selectedText)
+			.attr("cursor", "pointer");
+		drawText (x+width/2, y+height/2+5, "20px", "middle", selectedText, type)
+			.attr("cursor", "pointer");
 	}
 }	
 // Region switcher
 function drawRegionChange (x, y, colorBackround, colorText) {
 	drawRect (x, y, viewBarWidth, viewBarHeight, colorBackround, colorWhite)
+		.attr("cursor", "pointer")
 		.on("click", function(){
 			if(region === "NZ"){
 				d3.event.stopPropagation();
@@ -523,6 +535,7 @@ function drawRegionChange (x, y, colorBackround, colorText) {
 			}
 		});
 	drawRect (x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorBackround, colorText)
+		.attr("cursor", "pointer")
 		.on("click", function(){
 			if(region === "NZ"){
 				d3.event.stopPropagation();
@@ -539,6 +552,7 @@ function drawRegionChange (x, y, colorBackround, colorText) {
 			}
 		});
 	drawText (x+viewBarWidth/2, y+viewBarHeight/2+5, "20px", "middle", colorText, region)
+		.attr("cursor", "pointer")
 		.on("click", function(){
 			if(region === "NZ"){
 				d3.event.stopPropagation();
