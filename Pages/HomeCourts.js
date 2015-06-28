@@ -346,7 +346,8 @@ function drawImages (arc, transformX, transformY, team, teams) {
 				}else {
 					drawSeason (teams);
 				}
-			});
+			})
+			.attr("cursor", "pointer");
 }
 
 function drawArc (teams, team, arc, colorStroke, colorFill, x, y) {
@@ -364,7 +365,8 @@ function drawArc (teams, team, arc, colorStroke, colorFill, x, y) {
 				}else {
 					drawSeason (teams);
 				}
-			});
+			})
+			.attr("cursor", "pointer");
 
 }
 
@@ -427,7 +429,8 @@ function drawLeftTri ()  {
 			d3.event.stopPropagation();
 			year = year - 1;
 			perSeason();
-		});
+		})
+		.attr("cursor", "pointer");
 }
 
 function drawRightTri ()  {
@@ -437,7 +440,8 @@ function drawRightTri ()  {
 			d3.event.stopPropagation();
 			year = year + 1;
 			perSeason();
-		});
+		})
+		.attr("cursor", "pointer");
 }
 
 function drawImage (name, x, y, width, height) {
@@ -465,7 +469,8 @@ function drawViewChange (x, y, colorBackround, colorText) {
 				view = "Overall";
 				overall ();
 			}
-		});
+		})
+		.attr("cursor", "pointer");
 	var rect2 = drawABar(x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorWhite, colorText);
 	rect2.on("click", function(f){
 			if(view === "Overall"){
@@ -477,7 +482,8 @@ function drawViewChange (x, y, colorBackround, colorText) {
 				view = "Overall";
 				overall ();
 			}
-		});
+		})
+		.attr("cursor", "pointer");
 	var text = drawText (view, x+viewBarWidth/2, y+viewBarHeight/2+5, 20, "middle", colorText);
 	text.on("click", function(f){
 			if(view === "Overall"){
@@ -489,7 +495,8 @@ function drawViewChange (x, y, colorBackround, colorText) {
 				view = "Overall";
 				overall ();
 			}
-		});
+		})
+		.attr("cursor", "pointer");
 }
 
 function drawHeading () {

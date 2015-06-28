@@ -121,12 +121,11 @@ function attachLink (x, y, match, team, other) {
 }
 
 function drawOtherTeamLogo (x, y, barHeight, team) {
-	return svg.append("svg:image")
-		.attr("xlink:href", "../Resources/logos/logo_" + team + ".png")
-		.attr("x", x+barPadding)
-		.attr("y", y-barPadding/2)
-		.attr("width", barHeight+barPadding)
-		.attr("height", barHeight+barPadding);
+	var image = drawAnImage (x+barPadding, y-barPadding/2, barHeight+barPadding, barHeight+barPadding, "../Resources/logos/logo_" + team + ".png");
+	image.on("click", function(f){
+			perSeason(team);
+		})
+		.attr("cursor", "pointer");
 }
 
 // returns the team given's score in position 0 and the other in pos 1 
@@ -408,7 +407,8 @@ function addClick (team, image){
 	image.on('click', function(){
 			d3.event.stopPropagation();
 			overall(team);
-	});
+	})
+	.attr("cursor", "pointer");
 }
 
 function drawASBanners () {
@@ -450,7 +450,8 @@ function drawLeftTri (team)  {
 			d3.event.stopPropagation();
 			year = year - 1;
 			perSeason(team);
-		});
+		})
+		.attr("cursor", "pointer");
 }
 
 function drawRightTri (team)  {
@@ -459,7 +460,8 @@ function drawRightTri (team)  {
 			d3.event.stopPropagation();
 			year = year + 1;
 			perSeason(team);
-		});
+		})
+		.attr("cursor", "pointer");
 }
 
 function drawBanner () {
@@ -487,7 +489,8 @@ function drawViewChange (team, x, y, colorBackround, colorText) {
 				view = "Overall";
 				overall (team);
 			}
-		});
+		})
+		.attr("cursor", "pointer");
 	var rect2 = drawABar (x+2.5, y+2.5, viewBarWidth-5, viewBarHeight-5, colorBackround, colorText);
 	rect2.on("click", function(f){
 			if(view === "Overall"){
@@ -499,7 +502,8 @@ function drawViewChange (team, x, y, colorBackround, colorText) {
 				view = "Overall";
 				overall (team);
 			}
-		});
+		})
+		.attr("cursor", "pointer");
 	var text = drawText(view, x+viewBarWidth/2, y+viewBarHeight/2+5, 20, "middle", colorText)
 	text.on("click", function(f){
 			if(view === "Overall"){
@@ -511,7 +515,8 @@ function drawViewChange (team, x, y, colorBackround, colorText) {
 				view = "Overall";
 				overall (team);
 			}
-		});
+		})
+		.attr("cursor", "pointer");
 }
 
 function drawBackButton () {
@@ -522,7 +527,8 @@ function drawBackButton () {
 	image.on('click', function(){
 			d3.event.stopPropagation();
 			doPage();
-	});
+	})
+	.attr("cursor", "pointer");
 }
 
 function drawTitle (team) {
